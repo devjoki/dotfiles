@@ -1,0 +1,6 @@
+require 'config.options'
+require 'utils'
+require 'config.default_keymaps'
+require 'config.autocmds'
+require 'config.plugins'
+require 'config.health'

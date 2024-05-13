@@ -1,0 +1,16 @@
+let mapleader = " "
+nnoremap yy "+yy
+vnoremap y "+y
+
+nnoremap p "+p
+nnoremap <C-w> :action JumpToLastWindow<CR>
+vnoremap p "+p
+nnoremap P "+P
+vnoremap P "+P
+nnoremap <leader>sf :action GotoFile<CR>
+nnoremap <leader>sc :action GotoClass<CR>
+set surround
+set incsearch
+nmap g] :action GotoImplementation<CR>
+set commentary  
+set NERDTree
