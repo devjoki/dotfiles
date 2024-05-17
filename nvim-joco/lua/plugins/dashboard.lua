@@ -52,7 +52,7 @@ return {
             { action = "Telescope oldfiles",                                                          desc = " Recent Files",              icon = " ", key = "r" },
             { action = "Telescope live_grep",                                                         desc = " Find Text",                 icon = " ", key = "g" },
             { action = [[require('telescope.builtin').find_files { cwd = vim.fn.stdpath 'config' }]], desc = " Config",                    icon = " ", key = "c" },
-            { action = [[lua require("persistence").load(); vim.cmd(':NvimTreeToggle')]],             desc = " Restore Session",           icon = " ", key = "s" },
+            { action = [[lua require("persistence").load()]],             desc = " Restore Session",           icon = " ", key = "s" },
             { action = "LazyGit",                                                                     desc = " LazyGit",                   icon = " ", key = "l" },
             { action = "Lazy",                                                                        desc = " Lazy Package Manager",      icon = "󰒲 ", key = "p" },
             { action = "Mason",                                                                       desc = " Mason Package Manager",     icon = " ", key = "m" },

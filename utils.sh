@@ -169,3 +169,24 @@ append_unique_lines_to_file() {
 	done
 }
 
+nvim_at() {
+	set -e
+        local CURRENT_DIR="$PWD"
+        local TARGET_DIR="${1:-.}"
+	local CREATE_DIR_IF_NOT_EXISTS="$2"
+	if [[ -n "$CREATE_DIR_IF_NOT_EXISTS" && "$CREATE_DIR_IF_NOT_EXISTS" != "--create-dir" && "$CREATE_DIR_IF_NOT_EXISTS" != "-cd" ]]; then
+		echo_err "Invalid second argument: '$CREATE_DIR_IF_NOT_EXISTS'... It must be either empty or \"-cd\"/\"--create-dir\""
+		return 
+	elif [ -e "$TARGET_DIR" ] || ( [ -n "$CREATE_DIR_IF_NOT_EXISTS" ] || choice "Directory does not exist at $TARGET_DIR. Do you want to create it?"); then
+		create_dir_if_not_exists "$TARGET_DIR"
+
+	fi
+        if [[ -e "$TARGET_DIR" && "$CURRENT_DIR" != "$TARGET_DIR" ]]; then
+		if cd "$TARGET_DIR"; then
+			nvim
+			cd "$CURRENT_DIR" || echo "cant cd to $TARGET_DIR..."
+		else
+			echo "Cannot cd to $CURRENT_DIR..."
+		fi
+        fi
+}
