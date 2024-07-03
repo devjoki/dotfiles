@@ -11,14 +11,42 @@ echo_success() {
 echo_warn() {
 	echo -e "\e[33m$1\e[0m"
 }
+__read_property() {
+	local PROPERTIES_FILE=$1
+	local KEY=$2
+	local VALUE
+	echo "Reading '$KEY' from '$PROPERTIES_FILE'"
+	if [[ -n $PATH && -f "$PROPERTIES_FILE" ]]; then
+		VALUE=$(grep "^$KEY=" "$PROPERTIES_FILE" | sed -n "s/^$KEY=\(.*\)$/\1/p" || echo "") 
+	else
+		echo_warn "$PROPERTIES_FILE not found"
+	fi
+	printf "result:'%s'\n" "$VALUE"
+}
+
+read_property() {
+	local DEBUG="${3:=false}"
+	if [[ "$DEBUG" = "true" ]]; then
+		local RESULT=$(__read_property $1 $2 | tee /dev/tty | sed -n "s/^result:'\([^']*\)'$/\1/p")
+	else
+		local RESULT=$(__read_property $1 $2 | sed -n "s/^result:'\([^']*\)'$/\1/p")
+	fi
+	echo "$RESULT"
+}
 
 source_if_exists() {
 	local TARGET="$1"
-	if [ -z "$TARGET" ]; then
-		echo_err "TARGET must be provided!"
-		return 1
+	local SILENT="${2:=false}"
+	if [[ -z "$TARGET" ]]; then
+		if [[ "false" = "$SILENT" ]]; then
+			echo_err "TARGET must be provided!"
+			return 1
+		else
+			echo_warn "TARGET is empty"
+		fi
 	fi
 	if [ -e "$TARGET" ]; then
+		# echo "Sourcing file: '$TARGET'"
 		# shellcheck disable=SC1090 
 		source "$TARGET"
 	fi
@@ -72,19 +100,28 @@ create_symlink() {
         fi
 }
 
+export_input() {
+	local VARNAME=$1
+	local MSG=$2
+	local ANSWER
+	read -r ANSWER
+	export "$VARNAME=$RESULT"
+}
+
 choice() {
 	local MSG="${1:=Choose!}"
 	while true; do
-	echo "$MSG (y/n): "
-	read -r ANSWER
-	case "$ANSWER" in
-		[Yy]* ) 
-			return 0 ;;
-		[Nn]* ) 
-			return 1 ;;
-		* )
-			echo_err "Invalid option '$ANSWER'... Please enter 'y' or 'n'." ;;
-	esac
+		echo "$MSG (y/n):"
+		local ANSWER
+		read -r ANSWER
+		case "$ANSWER" in
+			[Yy]* ) 
+				return 0 ;;
+			[Nn]* ) 
+				return 1 ;;
+			* )
+				echo_err "Invalid option '$ANSWER'... Please enter 'y' or 'n'." ;;
+		esac
 	done
 
 }
@@ -133,6 +170,26 @@ __append_unique_line_to_file() {
 		echo "$LINE" >> "$TARGET_FILE"
 	# else 
 	# 	echo "Line \"$LINE\" already present in  \"$TARGET_FILE\"..."
+	fi
+}
+replace_or_append_property() {
+	local PROPERTIES_FILE=$1
+	local PROPERTY_KEY=$2
+	local PROPERTY_VALUE=$3
+	if [[ -n $PATH ]]; then
+		touch "$PROPERTIES_FILE"
+		local OLD_VALUE
+		OLD_VALUE=$(grep "^$PROPERTY_KEY=" "$PROPERTIES_FILE" | sed -n "s/^$PROPERTY_KEY=\(.*\)$/\1/p" || echo "")
+		local NEW_CONTENT="$PROPERTY_KEY=$PROPERTY_VALUE"
+		if  [[ -n "$OLD_VALUE" ]]; then
+			echo "Replacing value '$OLD_VALUE' with '$PROPERTY_VALUE' for key $PROPERTY_KEY..."
+			sed -i "s|^$PROPERTY_KEY=.*|$NEW_CONTENT|" "$PROPERTIES_FILE"
+		else
+			echo "Appending \"$NEW_CONTENT\" to \"$PROPERTIES_FILE\"..."
+			echo "$NEW_CONTENT" >> "$PROPERTIES_FILE"
+		fi
+	else
+		echo_warn "$PROPERTIES_FILE not found"
 	fi
 }
 

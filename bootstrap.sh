@@ -39,6 +39,7 @@ done
 #install dependencies
 install_package_if_not_exists "zsh"
 chsh -s "$(which zsh)"
+touch "$HOME/.zsh_config.properties"
 install_package_if_not_exists "unzip"
 install_oh_my_zsh
 install_app_if_not_exists "nvim" "brew install nvim"
