@@ -58,6 +58,7 @@ install_app_if_not_exists "java" "vfox add java" "vfox install java@$JAVA_VERSIO
 install_app_if_not_exists "mvn" "vfox add maven" "vfox install maven@$MAVEN_VERSION" "vfox use -g maven"
 install_app_if_not_exists "gradle" "vfox add gradle" "vfox install gradle@$GRADLE_VERSION" "vfox use -g gradle"
 install_app_if_not_exists "node" "vfox add nodejs" "vfox install nodejs@$NODE_VERSION" "vfox use -g nodejs"
+install_package_if_not_exists "latexmk"
 
 #create symbolic links
 create_symlink "$SCRIPT_DIR/zshrc" "$HOME/.zshrc" --override
