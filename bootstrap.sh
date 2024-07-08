@@ -26,6 +26,10 @@ source "$SCRIPT_DIR/utils.sh"
 set -e
 if [[ -z "$WSL" ]]; then
 	sudo bash "$SCRIPT_DIR/run_util_function.sh" "append_unique_lines_to_file" "/etc/environment" "export WAYLAND_DISPLAY=wayland-0" "export DISPLAY=:0"
+	# required for vimtex neovim plugin
+	create_symlink "$SCRIPT_DIR/wsl_bash_sysinit" "$HOME/.wsl_bash_sysinit" --override
+	# nvim clipboard paste doesn't work withouyt this for me
+	install_package_if_not_exists "xclip"
 fi
 sudo apt-get update
 sudo apt-get upgrade
@@ -59,6 +63,7 @@ install_app_if_not_exists "mvn" "vfox add maven" "vfox install maven@$MAVEN_VERS
 install_app_if_not_exists "gradle" "vfox add gradle" "vfox install gradle@$GRADLE_VERSION" "vfox use -g gradle"
 install_app_if_not_exists "node" "vfox add nodejs" "vfox install nodejs@$NODE_VERSION" "vfox use -g nodejs"
 install_package_if_not_exists "latexmk"
+install_package_if_not_exists "zathura"
 
 #create symbolic links
 create_symlink "$SCRIPT_DIR/zshrc" "$HOME/.zshrc" --override

@@ -36,13 +36,13 @@ read_property() {
 
 source_if_exists() {
 	local TARGET="$1"
-	local SILENT="${2:=false}"
+	local IGNORE_EMPTY="${2:=false}"
 	if [[ -z "$TARGET" ]]; then
-		if [[ "false" = "$SILENT" ]]; then
+		if [[ "false" = "$IGNORE_EMPTY" ]]; then
 			echo_err "TARGET must be provided!"
 			return 1
-		else
-			echo_warn "TARGET is empty"
+		# else
+		# 	echo_warn "TARGET is empty"
 		fi
 	fi
 	if [ -e "$TARGET" ]; then

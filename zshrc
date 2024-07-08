@@ -24,7 +24,7 @@ plugins=(
 )
 #  safe-paste
 # Additinal plugins
-source_if_exists $(read_property  "$ZSH_CONFIG_PROPERTIES" "ZSH_EXTRA_PLUGINS") "true"
+source_if_exists "$(read_property  "$ZSH_CONFIG_PROPERTIES" "ZSH_EXTRA_PLUGINS")" "true"
 # oh my zsh
 source "$ZSH/oh-my-zsh.sh"
 
@@ -32,4 +32,8 @@ eval "$(vfox activate zsh)"
 # common exports
 export ZVM_VI_EDITOR="nvim"
 # Additinal config that should not be sourceControlled
-source_if_exists $(read_property  "$ZSH_CONFIG_PROPERTIES" "ZSH_EXTRA_CONFIG") "true"
+source_if_exists "$(read_property  "$ZSH_CONFIG_PROPERTIES" "ZSH_EXTRA_CONFIG")" "true"
+
+if grep -qi microsoft /proc/version && [ -f ~/.wsl_bash_sysinit ]; then
+    . ~/.wsl_bash_sysinit
+fi

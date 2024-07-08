@@ -15,6 +15,7 @@ return {
     'bashls',
     'shellcheck',
     'tailwindcss',
+    'texlab',
   },
   handler_config = {
     -- clangd = {},
