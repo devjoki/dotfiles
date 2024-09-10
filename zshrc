@@ -19,8 +19,6 @@ plugins=(
   history
   starship
   sudo
-  timer
-  zsh-vi-mode
 )
 #  safe-paste
 # Additinal plugins
@@ -34,6 +32,6 @@ export ZVM_VI_EDITOR="nvim"
 # Additinal config that should not be sourceControlled
 source_if_exists "$(read_property  "$ZSH_CONFIG_PROPERTIES" "ZSH_EXTRA_CONFIG")" "true"
 
-if grep -qi microsoft /proc/version && [ -f ~/.wsl_bash_sysinit ]; then
+if [ -d /proc/version ] && grep -qi microsoft /proc/version && [ -f ~/.wsl_bash_sysinit ]; then
     . ~/.wsl_bash_sysinit
 fi

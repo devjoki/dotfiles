@@ -3,7 +3,7 @@ return {
   ensure_installed = {
     -- 'kotlin-language-server',
     -- 'ktlint',
-    'tsserver',
+    'ts_ls',
     'jdtls',
     'stylua',
     'lua_ls',
