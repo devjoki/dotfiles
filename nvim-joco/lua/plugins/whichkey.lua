@@ -1,12 +1,14 @@
+local success, work = pcall(require, 'work')
+local work_cfg = success and work.which_key_config() or {}
 return {
   { -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
-    event = 'VimEnter', -- Sets the loading event to 'VimEnter'
+    event = 'VeryLazy', -- Sets the loading event to 'VimEnter' 'VeryLazy'
     config = function() -- This is the function that runs, AFTER loading
       require('which-key').setup()
 
       -- Document existing key chains
-      require('which-key').add {
+      require('which-key').add(require('utils').merge_tables({
         {
           '<leader>c',
           name = '[C]ode',
@@ -51,7 +53,7 @@ return {
           '<leader>up',
           name = '[P]rint[U]tils',
         },
-      }
+      }, work_cfg))
     end,
   },
 }

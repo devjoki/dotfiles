@@ -6,6 +6,13 @@ local function input_with_new_line(prompt)
   return input
 end
 
+function Utils.merge_tables(main, additional)
+  for k, v in pairs(additional) do
+    main[k] = v
+  end
+  return main
+end
+
 function Utils.reload(module)
   package.loaded[module] = nil
   return require(module)
