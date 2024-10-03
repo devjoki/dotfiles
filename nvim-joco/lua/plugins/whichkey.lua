@@ -11,47 +11,52 @@ return {
       require('which-key').add(require('utils').merge_tables({
         {
           '<leader>c',
-          name = '[C]ode',
+          group = '[C]ode',
         },
         {
           '<leader>d',
-          name = '[D]ocument',
+          group = '[D]ocument',
         },
         {
           '<leader>r',
-          name = '[R]ename',
+          group = '[R]ename',
         },
         {
           '<leader>s',
-          name = '[S]earch',
+          group = '[S]earch',
         },
         {
           '<leader>w',
-          name = '[W]orkspace',
+          group = '[W]orkspace',
         },
         {
           '<leader>g',
-          name = '[G]it',
+          group = '[G]it',
         },
         {
           '<leader>p',
-          name = '[P]ersistance',
+          group = '[P]ersistance',
         },
         {
           '<leader>t',
-          name = '[T]rouble',
+          group = '[T]rouble',
         },
         {
           '<leader>b',
-          name = '[B]uffers',
+          group = '[B]uffers',
+        },
+        {
+          '<leader>bw',
+          [[<cmd>bw <CR>]],
+          desc = '[W]ipe buffer',
         },
         {
           '<leader>u',
-          name = '[U]tils',
+          group = '[U]tils',
         },
         {
           '<leader>up',
-          name = '[P]rint[U]tils',
+          group = '[P]rint[U]tils',
         },
       }, work_cfg))
     end,
