@@ -22,6 +22,7 @@ return {
             lua = { 'stylua' },
             javascript = { { 'prettierd', 'prettier' } },
             typescript = { { 'prettierd', 'prettier' } },
+            css = { { 'prettierd', 'prettier' } },
             -- kotlin = { 'ktlint' },
             -- typescript = { 'eslint_d' },
             -- Conform can also run multiple formatters sequentially

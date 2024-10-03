@@ -16,6 +16,7 @@ return {
     'shellcheck',
     'tailwindcss',
     'texlab',
+    'terraformls',
   },
   handler_config = {
     -- clangd = {},

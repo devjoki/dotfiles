@@ -14,3 +14,4 @@ set incsearch
 nmap g] :action GotoImplementation<CR>
 set commentary  
 set NERDTree
+set easymotion
