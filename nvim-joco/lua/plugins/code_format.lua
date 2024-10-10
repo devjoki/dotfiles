@@ -20,9 +20,9 @@ return {
           end,
           formatters_by_ft = {
             lua = { 'stylua' },
-            javascript = { { 'prettierd', 'prettier' } },
-            typescript = { { 'prettierd', 'prettier' } },
-            css = { { 'prettierd', 'prettier' } },
+            javascript = { 'prettierd', 'prettier', stop_after_first = true },
+            typescript = { 'prettierd', 'prettier', stop_after_first = true },
+            css = { 'prettierd', 'prettier', stop_after_first = true },
             -- kotlin = { 'ktlint' },
             -- typescript = { 'eslint_d' },
             -- Conform can also run multiple formatters sequentially

@@ -47,6 +47,7 @@ touch "$HOME/.zsh_config.properties"
 install_package_if_not_exists "unzip"
 install_oh_my_zsh
 install_app_if_not_exists "nvim" "brew install nvim"
+install_app_if_not_exists "tmux" "brew install tmux"
 install_app_if_not_exists "starship" "brew install starship"
 install_app_if_not_exists "vfox" "brew install vfox" 
 install_app_if_not_exists "rustup" "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y" "rustup install stable"
@@ -66,6 +67,7 @@ install_package_if_not_exists "latexmk"
 install_package_if_not_exists "zathura"
 
 #create symbolic links
+create_symlink "$SCRIPT_DIR/tmux.conf" "$HOME/.tmux.conf" --override
 create_symlink "$SCRIPT_DIR/zshrc" "$HOME/.zshrc" --override
 create_symlink "$SCRIPT_DIR/zshenv" "$HOME/.zshenv" --override
 create_symlink "$SCRIPT_DIR/utils.sh" "$HOME/.scripts/utils.sh" --override
@@ -73,3 +75,5 @@ create_symlink "$SCRIPT_DIR/run_util_function.sh" "$HOME/.scripts/run_util_funct
 create_symlink "$SCRIPT_DIR/ideavimrc" "$HOME/.ideavimrc" --override
 create_symlink "$SCRIPT_DIR/nvim-joco" "$HOME/.config/nvim" --override
 create_symlink "$SCRIPT_DIR/nvim-lazy" "$HOME/.config/nvim-lazy" --override
+
+git clone https://github.com/tmux-plugins/tpm.git ~/.tmux/plugins/tpm
