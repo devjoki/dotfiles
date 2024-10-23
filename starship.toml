@@ -1,0 +1,155 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
+# format = """
+# [░▒▓](#a3aed2)\
+# [  ](bg:#a3aed2 fg:#090c0c)\
+# [](bg:#769ff0 fg:#a3aed2)\
+# $directory\
+# [](fg:lang_fg bg:git_bg)\
+# $git_branch\
+# $git_status\
+# [](fg:git_bg bg:lang_bg)\
+# $nodejs\
+# $rust\
+# $golang\
+# $php\
+# [](fg:#212736 bg:#1d2230)\
+# $time\
+# [ ](fg:#1d2230)\
+# \n$character"""
+
+format = """
+[░▒▓](start)\
+$os\
+[ ](bg:os_section_bg fg:os_section_fg)\
+$directory\
+[ ](bg:dir_section_bg fg:dir_section_fg)\
+$git_branch\
+$git_status\
+[ ](bg:git_section_bg fg:git_section_fg)\
+($nodejs\
+$rust\
+$golang\
+$java\
+$kotlin\
+$python\
+$lua\
+$terraform\
+$aws\
+([ ](#769ff0)\
+$package)\
+[ ](bg:lan__section_bg fg:lan_section_fg))\
+$time\
+[ ](fg:#1d2230)\
+$line_break$character"""
+
+palette = 'j_palette'
+
+[palettes.j_palette]
+start_section_bg =  "#a3aed2"
+os_section_bg = "#769ff0"
+os_section_fg = "#a3aed2"
+os_bg = "#a3aed2"
+os_fg = "#090c0c"
+dir_section_bg = "#394260"
+dir_section_fg = "#769ff0"
+dir_bg = "#769ff0"
+dir_fg = "#e3e5e5"
+git_section_bg = "#212736"
+git_section_fg = "#394260"
+git_bg = "#394260"
+git_fg = "#769ff0"
+lan_section_bg = "#1d2230"
+lan_section_fg = "#212736"
+lan_bg = "#212736"
+lan_fg = "#769ff0"
+# [](fg:git_bg bg:lang_bg)\
+#66ffff
+[os]
+style = "bg:os_bg fg:os_fg"
+format = "[$symbol]($style)"
+disabled = false
+
+[os.symbols]
+Macos = "  "
+
+[directory]
+style = "bg:dir_bg fg:dir_fg"
+format = "[ $path ]($style)"
+truncation_length = 4
+truncation_symbol = "…/"
+home_symbol = "󰋜 "
+
+[directory.substitutions]
+"Documents" = "󰈙 "
+"Downloads" = " "
+"Music" = " "
+"Pictures" = " "
+"~/.config" = " "
+"code" = " "
+
+[git_branch]
+symbol = ""
+style = "bg:git_bg"
+format = '[[ $symbol $branch ](fg:git_fg bg:git_bg)]($style)'
+
+[git_status]
+style = "bg:git_bg"
+format = '[[($all_status$ahead_behind )](fg:git_fg bg:git_bg)]($style)'
+
+[nodejs]
+symbol = " "
+style = "fg:lang_fg bg:lang_bg"
+format = '[$symbol ($version )]($style)'
+
+[rust]
+symbol = " "
+style = "fg:lang_fg bg:lang_bg"
+format = '[$symbol ($version )]($style)'
+
+[golang]
+symbol = " "
+style = "fg:lang_fg bg:lang_bg"
+format = '[$symbol ($version )]($style)'
+
+[java]
+symbol = " "
+style = "fg:lang_fg bg:lang_bg"
+format = '[$symbol ($version )]($style)'
+
+[kotlin]
+symbol = " "
+style = "fg:lang_fg bg:lang_bg"
+format = '[$symbol ($version )]($style)'
+
+[python]
+symbol = " "
+style = "fg:lang_fg bg:lang_bg"
+format = '[$symbol ($version )]($style)'
+
+[lua]
+symbol = " "
+style = "fg:lang_fg bg:lang_bg"
+format = '[$symbol ($version )]($style)'
+
+[terraform]
+symbol = "󱁢 "
+style = "fg:lang_fg bg:lang_bg"
+format = '[$symbol $version - $workspace]($style)'
+
+[aws]
+symbol = "󰸏 "
+style = "fg:lang_fg bg:lang_bg"
+format = 'on [$symbol($profile )(\($region\) )]($style)'
+# force_display = true
+
+[package]
+symbol = " "
+style = "fg:lang_fg bg:lang_bg"
+format = '[$symbol ($version )]($style)'
+
+[time]
+disabled = false
+time_format = "%R" # Hour:Minute Format
+style = "bg:#1d2230"
+format = '[[  $time ](fg:#a0a9cb bg:#1d2230)]($style)'

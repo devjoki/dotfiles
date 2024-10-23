@@ -1,0 +1,7 @@
+#!/bin/bash
+
+alias lvim="NVIM_APPNAME=nvim-lazy nvim"
+alias nvo='nvim_at'
+alias notes='nvim_at "$HOME/notes/"'
+alias ls="eza --icons=always"
+alias lsd="eza --icons=always -l -h"
