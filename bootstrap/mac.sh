@@ -8,7 +8,8 @@ append_unique_lines_to_file "$Z_PROFILE" 'eval "$(/opt/homebrew/bin/brew shellen
 eval "$(/opt/homebrew/bin/brew shellenv)"
 source "$Z_PROFILE"
 
-brew install --cask wezterm
+# brew install --cask wezterm
+brew install --cask ghostty
 brew install starship
 brew install fzf
 brew install neovim

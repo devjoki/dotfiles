@@ -168,7 +168,7 @@ config.on_attach = function(client, bufnr)
   local function with_compile(fn)
     return function()
       if vim.bo.modified then
-        vim.cmd 'w'
+        pcall(vim.cmd, 'w')
       end
       client.request_sync('java/buildWorkspace', false, 5000, bufnr)
       fn()

@@ -71,3 +71,4 @@ return {
     require('smart-splits').setup {}
   end,
 }
+

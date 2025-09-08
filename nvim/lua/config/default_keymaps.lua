@@ -32,3 +32,4 @@ vim.keymap.set('n', '<leader>ue', '<cmd>lua require("utils").load_cmd_result_to_
 vim.keymap.set({ 'n', 'v' }, '<leader>ur', '<cmd>lua require("utils").save_as_root() <CR>', { desc = 'Save current buffer as root' })
 vim.keymap.set({ 'n', 'v' }, '<leader>upm', [[<cmd>lua require("utils").print_module() <CR>]], { desc = 'Prints module by name' })
 vim.keymap.set({ 'n', 'v' }, '<leader>upe', [[<cmd>lua require("utils").execute_and_print() <CR>]], { desc = 'Executes lua code and prints the result' })
+

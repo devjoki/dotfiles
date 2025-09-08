@@ -49,7 +49,7 @@ end
 
 --- Execute a command and load the result into a new buffer
 function Utils.load_cmd_result_to_buffer()
-  vim.cmd [[:execute 'enew | r ! '.input('Enter command: ')]]
+  pcall(vim.cmd, [[:execute 'enew | r ! '.input('Enter command: ')]])
 end
 
 --- print using vim inspect
@@ -72,14 +72,14 @@ function Utils.save_as_root()
     target_file = vim.fn.input 'File doesnt exists where to save it? '
   end
   local temp_file = vim.fn.tempname()
-  vim.cmd(':silent w ' .. temp_file)
+  pcall(vim.cmd, ':silent w ' .. temp_file)
   local password = vim.fn.inputsecret 'sudo password: '
   local output =
     vim.fn.systemlist(string.format([[echo %s | sudo -S bash -c 'cat %s | tee %s'  >/dev/null]], vim.fn.shellescape(password), temp_file, target_file))
   if Utils.list_contains(output, 'sudo: 1 incorrect password attempt') then
     vim.api.nvim_err_writeln '\nIncorrect sudo password!'
   end
-  vim.cmd ':e!'
+  pcall(vim.cmd, ':e!')
 end
 
 return Utils

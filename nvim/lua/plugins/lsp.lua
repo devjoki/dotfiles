@@ -113,7 +113,11 @@ return {
 
             vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
               buffer = event.buf,
-              callback = vim.lsp.buf.clear_references,
+              callback = function()
+                if vim.g.vscode == nil then
+                  vim.lsp.buf.clear_references()
+                end
+              end,
             })
           end
         end,
