@@ -5,9 +5,7 @@ return {
     lazy = false,
     dependencies = {
       'nvim-tree/nvim-web-devicons',
-    },
-    keys = {
-      { '<leader>wt', ':NvimTreeToggle<CR>', mode = { 'n', 'v' }, desc = 'NvimTree Toggle' },
+      'folke/which-key.nvim',
     },
     config = function()
       local function on_attach(bufnr)
@@ -114,6 +112,11 @@ return {
           enable = true,
         },
         on_attach = on_attach,
+      }
+
+      -- Register global keymaps with which-key
+      require('which-key').add {
+        { '<leader>wt', ':NvimTreeToggle<CR>', mode = { 'n', 'v' }, desc = 'NvimTree Toggle' },
       }
     end,
   },

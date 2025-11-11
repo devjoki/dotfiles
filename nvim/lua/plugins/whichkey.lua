@@ -25,6 +25,19 @@ return {
           '<leader>w',
           group = '[W]orkspace',
         },
+        -- Diagnostics moved to workspace group
+        {
+          '<leader>we',
+          vim.diagnostic.open_float,
+          mode = { 'n', 'v' },
+          desc = 'Show diagnostic [E]rror messages',
+        },
+        {
+          '<leader>wq',
+          vim.diagnostic.setloclist,
+          mode = { 'n', 'v' },
+          desc = 'Open diagnostic [Q]uickfix list',
+        },
         {
           '<leader>ww',
           group = '[W]hich-key',
@@ -93,9 +106,34 @@ return {
           '<leader>u',
           group = '[U]tils',
         },
+        -- Utility keymaps (defined in default_keymaps.lua)
+        {
+          '<leader>ue',
+          '<cmd>lua require("utils").load_cmd_result_to_buffer() <CR>',
+          mode = 'n',
+          desc = 'Execute command and load result into a buffer',
+        },
+        {
+          '<leader>ur',
+          '<cmd>lua require("utils").save_as_root() <CR>',
+          mode = { 'n', 'v' },
+          desc = 'Save current buffer as root',
+        },
         {
           '<leader>up',
           group = '[P]rint[U]tils',
+        },
+        {
+          '<leader>upm',
+          [[<cmd>lua require("utils").print_module() <CR>]],
+          mode = { 'n', 'v' },
+          desc = 'Prints module by name',
+        },
+        {
+          '<leader>upe',
+          [[<cmd>lua require("utils").execute_and_print() <CR>]],
+          mode = { 'n', 'v' },
+          desc = 'Executes lua code and prints the result',
         },
       }, work_cfg))
     end,

@@ -2,6 +2,7 @@ return {
   {
     'rmagatti/auto-session',
     lazy = false,
+    dependencies = { 'folke/which-key.nvim' },
     opts = {
       auto_session_suppress_dirs = { '~/', '~/Downloads', '~/Documents', '/tmp' },
       auto_save_enabled = true,
@@ -61,13 +62,18 @@ return {
         previewer = false,
       },
     },
-    keys = {
-      { '<leader>ps', '<cmd>AutoSession restore<cr>', mode = { 'n', 'v' }, desc = 'Restore session for current dir' },
-      { '<leader>pl', '<cmd>AutoSession search<cr>', mode = { 'n', 'v' }, desc = 'Search sessions' },
-      { '<leader>pd', '<cmd>AutoSession save<cr>', mode = { 'n', 'v' }, desc = 'Save current session' },
-      { '<leader>px', '<cmd>AutoSession delete<cr>', mode = { 'n', 'v' }, desc = 'Delete session for current dir' },
-      { '<leader>wd', [[:execute 'tabnew | Dashboard'<cr>]], mode = { 'n', 'v' }, desc = 'Open Dashboard' },
-    },
+    config = function(_, opts)
+      require('auto-session').setup(opts)
+
+      -- Register keymaps with which-key
+      require('which-key').add {
+        { '<leader>ps', '<cmd>AutoSession restore<cr>', mode = { 'n', 'v' }, desc = 'Restore session for current dir' },
+        { '<leader>pl', '<cmd>AutoSession search<cr>', mode = { 'n', 'v' }, desc = 'Search sessions' },
+        { '<leader>pd', '<cmd>AutoSession save<cr>', mode = { 'n', 'v' }, desc = 'Save current session' },
+        { '<leader>px', '<cmd>AutoSession delete<cr>', mode = { 'n', 'v' }, desc = 'Delete session for current dir' },
+        { '<leader>wd', [[:execute 'tabnew | Dashboard'<cr>]], mode = { 'n', 'v' }, desc = 'Open Dashboard' },
+      }
+    end,
   },
   {
     'nvimdev/dashboard-nvim',

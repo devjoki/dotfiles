@@ -6,6 +6,7 @@ return {
   -- See `:help gitsigns` to understand what the configuration keys do
   { -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
+    dependencies = { 'folke/which-key.nvim' },
     opts = {
       signs = {
         add = { text = '+' },
@@ -16,10 +17,15 @@ return {
         untracked = { text = '┆' },
       },
     },
-    keys = {
-      { '<leader>gp', ':Gitsigns preview_hunk<CR>', mode = { 'n', 'v' }, desc = 'Gitsigns preview hunk' },
-      { '<leader>gt', ':Gitsigns toggle_current_line_blame<CR>', mode = { 'n', 'v' }, desc = 'Gitsigns toggle blame' },
-    },
+    config = function(_, opts)
+      require('gitsigns').setup(opts)
+
+      -- Register keymaps with which-key
+      require('which-key').add {
+        { '<leader>gp', ':Gitsigns preview_hunk<CR>', mode = { 'n', 'v' }, desc = 'Gitsigns preview hunk' },
+        { '<leader>gt', ':Gitsigns toggle_current_line_blame<CR>', mode = { 'n', 'v' }, desc = 'Gitsigns toggle blame' },
+      }
+    end,
   },
   {
     'kdheepak/lazygit.nvim',
@@ -33,9 +39,9 @@ return {
     -- optional for floating window border decoration
     dependencies = {
       'nvim-lua/plenary.nvim',
+      'folke/which-key.nvim',
     },
-    -- setting the keybinding for LazyGit with 'keys' is recommended in
-    -- order to load the plugin when the command is run for the first time
+    -- Keep keys for lazy-loading, which-key will pick it up automatically
     keys = {
       { '<leader>gl', '<cmd>LazyGit<cr>', desc = 'LazyGit' },
     },

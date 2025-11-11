@@ -1,7 +1,14 @@
 return {
   'mrjones2014/smart-splits.nvim',
   lazy = false,
-  keys = {
+  dependencies = { 'folke/which-key.nvim' },
+  config = function()
+    require('smart-splits').setup {
+      multiplexer_integration = 'wezterm',
+    }
+
+    -- Register keymaps with which-key
+    require('which-key').add {
     {
       '<C-h>',
       function()
@@ -66,10 +73,6 @@ return {
       mode = { 'i', 'n', 'v' },
       desc = 'Resize window to right',
     },
-  },
-  config = function()
-    require('smart-splits').setup {
-      multiplexer_integration = 'wezterm',
     }
 
     -- Set user var so wezterm knows nvim is running

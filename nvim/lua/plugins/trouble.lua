@@ -2,8 +2,13 @@ return {
   {
     'folke/trouble.nvim',
     cmd = 'Trouble',
+    dependencies = { 'folke/which-key.nvim' },
     opts = {},
-    keys = {
+    config = function(_, opts)
+      require('trouble').setup(opts)
+
+      -- Register keymaps with which-key
+      require('which-key').add {
       { '<leader>tx', '<cmd>Trouble diagnostics toggle filter.buf=0<cr>', desc = 'Document Diagnostics (Trouble)' },
       { '<leader>tX', '<cmd>Trouble diagnostics toggle<cr>', desc = 'Workspace Diagnostics (Trouble)' },
       { '<leader>ts', '<cmd>Trouble symbols toggle focus=false<cr>', desc = 'Symbols (Trouble)' },
@@ -38,6 +43,7 @@ return {
         end,
         desc = 'Next trouble/quickfix item',
       },
-    },
+      }
+    end,
   },
 }
