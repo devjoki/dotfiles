@@ -1,18 +1,20 @@
 return {
   {
     'folke/trouble.nvim',
-    cmd = { 'TroubleToggle', 'Trouble' },
-    opts = { use_diagnostic_signs = true },
+    cmd = 'Trouble',
+    opts = {},
     keys = {
-      { '<leader>tx', '<cmd>TroubleToggle document_diagnostics<cr>', desc = 'Document Diagnostics (Trouble)' },
-      { '<leader>tX', '<cmd>TroubleToggle workspace_diagnostics<cr>', desc = 'Workspace Diagnostics (Trouble)' },
-      { '<leader>tL', '<cmd>TroubleToggle loclist<cr>', desc = 'Location List (Trouble)' },
-      { '<leader>tQ', '<cmd>TroubleToggle quickfix<cr>', desc = 'Quickfix List (Trouble)' },
+      { '<leader>tx', '<cmd>Trouble diagnostics toggle filter.buf=0<cr>', desc = 'Document Diagnostics (Trouble)' },
+      { '<leader>tX', '<cmd>Trouble diagnostics toggle<cr>', desc = 'Workspace Diagnostics (Trouble)' },
+      { '<leader>ts', '<cmd>Trouble symbols toggle focus=false<cr>', desc = 'Symbols (Trouble)' },
+      { '<leader>tl', '<cmd>Trouble lsp toggle focus=false win.position=right<cr>', desc = 'LSP Definitions / References (Trouble)' },
+      { '<leader>tL', '<cmd>Trouble loclist toggle<cr>', desc = 'Location List (Trouble)' },
+      { '<leader>tQ', '<cmd>Trouble qflist toggle<cr>', desc = 'Quickfix List (Trouble)' },
       {
         '[q',
         function()
           if require('trouble').is_open() then
-            require('trouble').previous { skip_groups = true, jump = true }
+            require('trouble').prev { skip_groups = true, jump = true }
           else
             local ok, err = pcall(vim.cmd.cprev)
             if not ok then

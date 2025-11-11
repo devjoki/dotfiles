@@ -1,17 +1,71 @@
 return {
   {
-    'folke/persistence.nvim',
-    event = 'BufReadPre', -- this will only start session saving when an actual file was opened
+    'rmagatti/auto-session',
+    lazy = false,
     opts = {
-      dir = vim.fn.expand(vim.fn.stdpath 'state' .. '/sessions/'), -- directory where session files are saved
-      options = { 'buffers', 'curdir', 'tabpages', 'winsize' }, -- sessionoptions used for saving
-      -- pre_save = nil, -- a function to call before saving the session
-      save_empty = false, -- don't save if there are no open file buffers
+      auto_session_suppress_dirs = { '~/', '~/Downloads', '~/Documents', '/tmp' },
+      auto_save_enabled = true,
+      auto_restore_enabled = false, -- Don't auto-restore, use manual keybindings
+      auto_session_use_git_branch = false,
+      -- Built-in nvim-tree handling
+      pre_save_cmds = { 'NvimTreeClose' },
+      post_restore_cmds = {
+        function()
+          -- Re-trigger FileType detection for all buffers to ensure ftplugin files run
+          -- This is crucial for LSP (like JDTLS) to attach and set up keybindings
+          for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+            if vim.api.nvim_buf_is_loaded(bufnr) then
+              local ft = vim.api.nvim_buf_get_option(bufnr, 'filetype')
+              if ft ~= '' then
+                vim.api.nvim_buf_call(bufnr, function()
+                  vim.cmd('doautocmd FileType ' .. ft)
+                end)
+              end
+            end
+          end
+
+          -- Delay NvimTreeOpen slightly to ensure proper restoration
+          vim.defer_fn(function()
+            if vim.fn.exists(':NvimTreeOpen') > 0 then
+              vim.cmd('NvimTreeOpen')
+
+              -- After opening nvim-tree, switch focus back to a normal file buffer
+              vim.defer_fn(function()
+                -- Find the first normal buffer (not special buffers)
+                for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+                  if vim.api.nvim_buf_is_loaded(bufnr) then
+                    local bufname = vim.api.nvim_buf_get_name(bufnr)
+                    local ft = vim.api.nvim_buf_get_option(bufnr, 'filetype')
+                    local buftype = vim.api.nvim_buf_get_option(bufnr, 'buftype')
+
+                    -- Check if it's a normal file (not nvim-tree, dashboard, etc.)
+                    if bufname ~= '' and buftype == '' and ft ~= 'NvimTree' and ft ~= 'dashboard' then
+                      -- Find the window showing this buffer and focus it
+                      for _, winid in ipairs(vim.api.nvim_list_wins()) do
+                        if vim.api.nvim_win_get_buf(winid) == bufnr then
+                          vim.api.nvim_set_current_win(winid)
+                          return
+                        end
+                      end
+                    end
+                  end
+                end
+              end, 50)
+            end
+          end, 100)
+        end
+      },
+      session_lens = {
+        load_on_setup = true,
+        theme_conf = { border = true },
+        previewer = false,
+      },
     },
     keys = {
-      { '<leader>ps', [[<cmd>lua require("persistence").load()<cr>]], mode = { 'n', 'v' }, desc = 'Restore session for current dir' },
-      { '<leader>pl', [[<cmd>lua require("persistence").load({ last = true })<cr>]], mode = { 'n', 'v' }, desc = 'Restore last session' },
-      { '<leader>pd', [[<cmd>lua require("persistence").stop()<cr>]], mode = { 'n', 'v' }, desc = 'Prevent saving session on exit' },
+      { '<leader>ps', '<cmd>AutoSession restore<cr>', mode = { 'n', 'v' }, desc = 'Restore session for current dir' },
+      { '<leader>pl', '<cmd>AutoSession search<cr>', mode = { 'n', 'v' }, desc = 'Search sessions' },
+      { '<leader>pd', '<cmd>AutoSession save<cr>', mode = { 'n', 'v' }, desc = 'Save current session' },
+      { '<leader>px', '<cmd>AutoSession delete<cr>', mode = { 'n', 'v' }, desc = 'Delete session for current dir' },
       { '<leader>wd', [[:execute 'tabnew | Dashboard'<cr>]], mode = { 'n', 'v' }, desc = 'Open Dashboard' },
     },
   },
@@ -52,7 +106,7 @@ return {
             { action = "Telescope oldfiles",                                                          desc = " Recent Files",              icon = " ", key = "r" },
             { action = "Telescope live_grep",                                                         desc = " Find Text",                 icon = " ", key = "g" },
             { action = [[require('telescope.builtin').find_files { cwd = vim.fn.stdpath 'config' }]], desc = " Config",                    icon = " ", key = "c" },
-            { action = [[lua require("persistence").load()]],             desc = " Restore Session",           icon = " ", key = "s" },
+            { action = "AutoSession restore",             desc = " Restore Session",           icon = " ", key = "s" },
             { action = "LazyGit",                                                                     desc = " LazyGit",                   icon = " ", key = "l" },
             { action = "Lazy",                                                                        desc = " Lazy Package Manager",      icon = "󰒲 ", key = "p" },
             { action = "Mason",                                                                       desc = " Mason Package Manager",     icon = " ", key = "m" },

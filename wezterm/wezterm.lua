@@ -6,8 +6,10 @@ local smart_splits = require("smart_splits")
 local resurrect = require("resurrect")
 local options = require("options")
 local tabline = require("tabline")
+local env = require("env")
 
 tabline.setup()
+env.setup(config)
 
 config.color_scheme = options.color_scheme
 config.leader = options.leader

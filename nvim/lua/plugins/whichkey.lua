@@ -1,7 +1,7 @@
 local success, work = pcall(require, 'work')
 local work_cfg = success and work.which_key_config() or {}
 return {
-  { -- Useful plugin to show you pending keybinds.
+  {                     -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
     event = 'VeryLazy', -- Sets the loading event to 'VimEnter' 'VeryLazy'
     config = function() -- This is the function that runs, AFTER loading
@@ -28,6 +28,54 @@ return {
         {
           '<leader>w',
           group = '[W]orkspace',
+        },
+        {
+          '<leader>ww',
+          group = '[W]hich-key',
+        },
+        {
+          '<leader>wwe',
+          '<cmd>WhichKey<CR>',
+          desc = '[E]xplore all keybindings',
+        },
+        {
+          '<leader>wwb',
+          function()
+            require('which-key').show({ global = false })
+          end,
+          desc = '[B]uffer keybindings',
+        },
+        {
+          '<leader>wwm',
+          function()
+            local mode = vim.fn.input('Mode (n/v/i/x/o): ')
+            if mode ~= '' then
+              require('which-key').show({ mode = mode })
+            end
+          end,
+          desc = '[M]ode keybindings',
+        },
+        {
+          '<leader>wws',
+          '<cmd>Telescope keymaps<CR>',
+          desc = '[S]earch keybindings',
+        },
+        {
+          '<leader>wwp',
+          function()
+            local prefix = vim.fn.input('Prefix: ')
+            if prefix ~= '' then
+              require('which-key').show(prefix)
+            end
+          end,
+          desc = '[P]refix keybindings',
+        },
+        {
+          '<leader>?',
+          function()
+            require('which-key').show('<leader>')
+          end,
+          desc = 'Show leader keybindings',
         },
         {
           '<leader>g',

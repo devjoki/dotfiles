@@ -1,0 +1,8 @@
+/CLAUDE.md
+
+# JDTLS (Eclipse JDT Language Server) generated files
+.classpath
+.project
+.settings/
+.factorypath
+bin/

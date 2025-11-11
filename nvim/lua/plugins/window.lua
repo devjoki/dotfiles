@@ -68,6 +68,25 @@ return {
     },
   },
   config = function()
-    require('smart-splits').setup {}
+    require('smart-splits').setup {
+      multiplexer_integration = 'wezterm',
+    }
+
+    -- Set user var so wezterm knows nvim is running
+    local function set_is_nvim()
+      vim.fn.system('wezterm cli set-user-var IS_NVIM true')
+    end
+
+    local function unset_is_nvim()
+      vim.fn.system('wezterm cli set-user-var IS_NVIM false')
+    end
+
+    vim.api.nvim_create_autocmd('VimEnter', {
+      callback = set_is_nvim,
+    })
+
+    vim.api.nvim_create_autocmd('VimLeave', {
+      callback = unset_is_nvim,
+    })
   end,
 }

@@ -1,42 +1,98 @@
-local home = os.getenv 'HOME'
-local nvim_app_name = vim.env.NVIM_APPNAME or 'nvim'
-local share_path = home .. '/.local/share/' .. nvim_app_name
-local workspace_path = share_path .. '/jdtls-workspace/'
-local project_name = vim.fn.fnamemodify(vim.fn.getcwd(), ':p:h:t')
-local workspace_dir = workspace_path .. project_name
+-- ftplugin/java.lua
+-- This file is sourced automatically when opening a .java file
 
-local status, jdtls = pcall(require, 'jdtls')
-if not status then
-  print 'jdtls not found... exiting from java ftplugin...'
-  return
-end
-local extendedClientCapabilities = jdtls.extendedClientCapabilities
-extendedClientCapabilities.onCompletionItemSelectedCommand = 'editor.action.triggerParameterHints'
+local bufnr = vim.api.nvim_get_current_buf()
 
-local get_bundles = function()
-  local jar_patterns = { share_path .. '/mason/packages/java-debug-adapter/extension/server/com.microsoft.java.debug.plugin-*.jar' }
-  local bundles = {}
-  local mason_registry = require 'mason-registry'
-  if mason_registry.is_installed 'java-debug-adapter' and mason_registry.is_installed 'java-test' then
-    vim.list_extend(jar_patterns, {
-      share_path .. '/mason/packages/java-test/extension/server/*.jar',
-    })
-    for _, jar_pattern in ipairs(jar_patterns) do
-      for _, bundle in ipairs(vim.split(vim.fn.glob(jar_pattern), '\n')) do
-        table.insert(bundles, bundle)
-      end
+local jdtls = require 'jdtls'
+local jdtls_setup = require 'jdtls.setup'
+
+-- Find Mason installation paths
+local mason_path = vim.fn.stdpath 'data' .. '/mason'
+local jdtls_path = mason_path .. '/packages/jdtls'
+local java_debug_path = mason_path .. '/packages/java-debug-adapter'
+local java_test_path = mason_path .. '/packages/java-test'
+local lombok_path = jdtls_path .. '/lombok.jar'
+
+-- Find the jdtls launcher jar
+local function get_jdtls_jar()
+  local jar_patterns = {
+    jdtls_path .. '/plugins/org.eclipse.equinox.launcher_*.jar',
+  }
+  for _, pattern in ipairs(jar_patterns) do
+    local matches = vim.fn.glob(pattern, true, true)
+    if #matches > 0 then
+      return matches[1]
     end
-  else
-    -- TODO why this is not working
-    print 'java denug adapter and java test must be installed!'
-    vim.api.nvim_err_writeln 'java denug adapter and java test must be installed!'
   end
-  return bundles
+  return nil
 end
 
+-- Determine the OS-specific config directory
+local function get_jdtls_config_dir()
+  if vim.fn.has 'mac' == 1 then
+    return jdtls_path .. '/config_mac'
+  elseif vim.fn.has 'unix' == 1 then
+    return jdtls_path .. '/config_linux'
+  elseif vim.fn.has 'win32' == 1 then
+    return jdtls_path .. '/config_win'
+  end
+  return jdtls_path .. '/config_linux'
+end
+
+-- Get project name for workspace directory
+local function get_project_name()
+  local cwd = vim.fn.getcwd()
+  return vim.fn.fnamemodify(cwd, ':p:h:t')
+end
+
+-- Detect root directory - prioritize .git to get the actual project root
+-- This is important for monorepos or projects with nested modules
+local root_dir = jdtls_setup.find_root { '.git' }
+if not root_dir then
+  -- Fallback to other markers if .git not found
+  root_dir = jdtls_setup.find_root { 'mvnw', 'gradlew', 'pom.xml', 'build.gradle' }
+end
+
+if not root_dir then
+  return -- No Java project root found, don't attach JDTLS
+end
+
+-- Setup workspace directory (one per project)
+local workspace_dir = vim.fn.stdpath 'data' .. '/jdtls-workspace/' .. get_project_name()
+vim.fn.mkdir(workspace_dir, 'p')
+
+-- Setup debugging bundles
+local bundles = {}
+
+-- Add java-debug-adapter (for debugging support)
+local java_debug_jar = java_debug_path .. '/extension/server/com.microsoft.java.debug.plugin-*.jar'
+local debug_jars = vim.fn.glob(java_debug_jar, true, true)
+if #debug_jars > 0 then
+  vim.list_extend(bundles, debug_jars)
+end
+
+-- Add java-test (for test runner support - fixed in v0.43.2)
+local java_test_jars = vim.fn.glob(java_test_path .. '/extension/server/*.jar', true, true)
+if #java_test_jars > 0 then
+  vim.list_extend(bundles, java_test_jars)
+end
+
+-- Get capabilities from nvim-cmp
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
+
+-- Extended client capabilities for jdtls
+local extendedClientCapabilities = jdtls.extendedClientCapabilities
+extendedClientCapabilities.resolveAdditionalTextEditsSupport = true
+
+-- Use currently active Java version from environment
+-- This respects version managers (jenv, sdkman, version-fox, etc.)
+local java_cmd = 'java'
+
+-- JDTLS configuration
 local config = {
   cmd = {
-    'java',
+    java_cmd,
     '-Declipse.application=org.eclipse.jdt.ls.core.id1',
     '-Dosgi.bundles.defaultStartLevel=4',
     '-Declipse.product=org.eclipse.jdt.ls.core.product',
@@ -48,22 +104,31 @@ local config = {
     'java.base/java.util=ALL-UNNAMED',
     '--add-opens',
     'java.base/java.lang=ALL-UNNAMED',
-    '-javaagent:' .. share_path .. '/mason/packages/jdtls/lombok.jar',
+    -- Enable Lombok support
+    '-javaagent:' .. lombok_path,
     '-jar',
-    vim.fn.glob(share_path .. '/mason/packages/jdtls/plugins/org.eclipse.equinox.launcher_*.jar'),
+    get_jdtls_jar(),
     '-configuration',
-    share_path .. '/mason/packages/jdtls/config_linux',
+    get_jdtls_config_dir(),
     '-data',
     workspace_dir,
   },
-  root_dir = require('jdtls.setup').find_root { '.git', 'mvnw', 'gradlew', 'pom.xml', 'build.gradle' },
+
+  root_dir = root_dir,
 
   settings = {
     java = {
-      signatureHelp = { enabled = true },
-      extendedClientCapabilities = extendedClientCapabilities,
+      eclipse = {
+        downloadSources = true,
+      },
+      configuration = {
+        updateBuildConfiguration = 'interactive',
+      },
       maven = {
         downloadSources = true,
+      },
+      implementationsCodeLens = {
+        enabled = true,
       },
       referencesCodeLens = {
         enabled = true,
@@ -71,173 +136,267 @@ local config = {
       references = {
         includeDecompiledSources = true,
       },
-      inlayHints = {
-        parameterNames = {
-          enabled = 'all', -- literals, all, none
-        },
-      },
       format = {
-        enabled = false,
+        enabled = true,
       },
-      saveActions = {
-        organizeImports = true,
+    },
+    signatureHelp = { enabled = true },
+    completion = {
+      favoriteStaticMembers = {
+        'org.hamcrest.MatcherAssert.assertThat',
+        'org.hamcrest.Matchers.*',
+        'org.hamcrest.CoreMatchers.*',
+        'org.junit.jupiter.api.Assertions.*',
+        'java.util.Objects.requireNonNull',
+        'java.util.Objects.requireNonNullElse',
+        'org.mockito.Mockito.*',
       },
-      completion = {
-        favoriteStaticMembers = {
-          'io.crate.testing.Asserts.assertThat',
-          'org.assertj.core.api.Assertions.assertThat',
-          'org.assertj.core.api.Assertions.assertThatThrownBy',
-          'org.assertj.core.api.Assertions.assertThatExceptionOfType',
-          'org.assertj.core.api.Assertions.catchThrowable',
-          'org.hamcrest.MatcherAssert.assertThat',
-          'org.hamcrest.Matchers.*',
-          'org.hamcrest.CoreMatchers.*',
-          'org.junit.jupiter.api.Assertions.*',
-          'java.util.Objects.requireNonNull',
-          'java.util.Objects.requireNonNullElse',
-          'org.mockito.Mockito.*',
-        },
-        filteredTypes = {
-          'com.sun.*',
-          'io.micrometer.shaded.*',
-          'java.awt.*',
-          'jdk.*',
-          'sun.*',
-        },
+      importOrder = {
+        'java',
+        'javax',
+        'com',
+        'org',
       },
-      sources = {
-        organizeImports = {
-          starThreshold = 9999,
-          staticStarThreshold = 9999,
-        },
+    },
+    extendedClientCapabilities = extendedClientCapabilities,
+    sources = {
+      organizeImports = {
+        starThreshold = 9999,
+        staticStarThreshold = 9999,
       },
-      codeGeneration = {
-        toString = {
-          template = '${object.className}{${member.name()}=${member.value}, ${otherMembers}}',
-        },
-        hashCodeEquals = {
-          useJava7Objects = true,
-        },
-        useBlocks = true,
+    },
+    codeGeneration = {
+      toString = {
+        template = '${object.className}{${member.name()}=${member.value}, ${otherMembers}}',
       },
+      useBlocks = true,
     },
   },
 
-  init_options = {
-    bundles = get_bundles(),
+  flags = {
+    allow_incremental_sync = true,
   },
-}
-local function test_with_profile(test_fn)
-  return function()
-    local choices = {
-      'cpu,alloc=2m,lock=10ms',
-      'cpu',
-      'alloc',
-      'wall',
-      'context-switches',
-      'cycles',
-      'instructions',
-      'cache-misses',
-    }
-    local select_opts = {
-      format_item = tostring,
-    }
-    vim.ui.select(choices, select_opts, function(choice)
-      if not choice then
-        return
-      end
-      local async_profiler_so = home .. '/apps/async-profiler/lib/libasyncProfiler.so'
-      local event = 'event=' .. choice
-      local vmArgs = '-ea -agentpath:' .. async_profiler_so .. '=start,'
-      vmArgs = vmArgs .. event .. ',file=/tmp/profile.jfr'
-      test_fn {
-        config_overrides = {
-          vmArgs = vmArgs,
-          noDebug = true,
-        },
-        after_test = function()
-          vim.fn.system 'jfr2flame /tmp/profile.jfr /tmp/profile.html'
-          vim.fn.system 'firefox /tmp/profile.html'
+
+  capabilities = capabilities,
+
+  -- Language server `initializationOptions`
+  -- You need to extend the `bundles` with paths to jar files
+  -- if you want to use additional eclipse.jdt.ls plugins.
+  init_options = {
+    bundles = bundles,
+  },
+
+  -- Keymaps and other on_attach stuff
+  on_attach = function(client, bufnr)
+    -- Use which-key for all keymaps
+    require('which-key').add {
+      -- LSP navigation
+      { 'gd', vim.lsp.buf.definition, desc = 'Go to definition', buffer = bufnr },
+      { 'gr', vim.lsp.buf.references, desc = 'References', buffer = bufnr },
+      { 'K', vim.lsp.buf.hover, desc = 'Hover', buffer = bufnr },
+      { '[d', vim.diagnostic.goto_prev, desc = 'Prev diagnostic', buffer = bufnr },
+      { ']d', vim.diagnostic.goto_next, desc = 'Next diagnostic', buffer = bufnr },
+
+      -- Java group
+      { '<leader>j', group = '[J]ava', buffer = bufnr },
+      { '<leader>jo', jdtls.organize_imports, desc = '[O]rganize imports', buffer = bufnr },
+      { '<leader>jv', jdtls.extract_variable, desc = 'Extract [V]ariable', buffer = bufnr, mode = 'n' },
+      {
+        '<leader>jv',
+        [[<Esc><Cmd>lua require('jdtls').extract_variable(true)<CR>]],
+        desc = 'Extract [V]ariable',
+        buffer = bufnr,
+        mode = 'v',
+      },
+      { '<leader>jc', jdtls.extract_constant, desc = 'Extract [C]onstant', buffer = bufnr, mode = 'n' },
+      {
+        '<leader>jc',
+        [[<Esc><Cmd>lua require('jdtls').extract_constant(true)<CR>]],
+        desc = 'Extract [C]onstant',
+        buffer = bufnr,
+        mode = 'v',
+      },
+      {
+        '<leader>jm',
+        [[<Esc><Cmd>lua require('jdtls').extract_method(true)<CR>]],
+        desc = 'Extract [M]ethod',
+        buffer = bufnr,
+        mode = 'v',
+      },
+
+      -- Testing group
+      { '<leader>t', group = '[T]est', buffer = bufnr },
+      { '<leader>tc', jdtls.test_class, desc = 'Test [C]lass', buffer = bufnr },
+      { '<leader>tm', jdtls.test_nearest_method, desc = 'Test [M]ethod', buffer = bufnr },
+
+      -- Code actions and generation
+      { '<leader>c', group = '[C]ode', buffer = bufnr },
+      { '<leader>ca', vim.lsp.buf.code_action, desc = 'Code [A]ction', buffer = bufnr },
+      { '<leader>cg', group = '[G]enerate Code', buffer = bufnr },
+      {
+        '<leader>cgg',
+        function()
+          vim.lsp.buf.code_action {
+            filter = function(action)
+              return action.kind and action.kind:match 'source.generate'
+            end,
+            apply = true,
+          }
         end,
-      }
-    end)
-  end
-end
+        desc = '[G]enerate (getters/setters/etc)',
+        buffer = bufnr,
+      },
+      {
+        '<leader>cgc',
+        function()
+          vim.lsp.buf.code_action {
+            filter = function(action)
+              return action.title:match 'constructor'
+            end,
+            apply = true,
+          }
+        end,
+        desc = 'Generate [C]onstructor',
+        buffer = bufnr,
+      },
+      {
+        '<leader>cgt',
+        function()
+          vim.lsp.buf.code_action {
+            filter = function(action)
+              return action.title:match 'toString'
+            end,
+            apply = true,
+          }
+        end,
+        desc = 'Generate [T]oString',
+        buffer = bufnr,
+      },
+      {
+        '<leader>cge',
+        function()
+          vim.lsp.buf.code_action {
+            filter = function(action)
+              return action.title:match 'equals' or action.title:match 'hashCode'
+            end,
+            apply = true,
+          }
+        end,
+        desc = 'Generate [E]quals/HashCode',
+        buffer = bufnr,
+      },
+      {
+        '<leader>cgi',
+        function()
+          vim.lsp.buf.code_action {
+            filter = function(action)
+              return action.title:match 'Implement' or action.title:match 'Override'
+            end,
+            apply = true,
+          }
+        end,
+        desc = '[I]mplement/Override methods',
+        buffer = bufnr,
+      },
 
-config.on_attach = function(client, bufnr)
-  local function with_compile(fn)
-    return function()
-      if vim.bo.modified then
-        vim.cmd 'w'
+      -- Rename
+      { '<leader>r', group = '[R]ename', buffer = bufnr },
+      { '<leader>rn', vim.lsp.buf.rename, desc = 'Re[n]ame', buffer = bufnr },
+
+      -- Diagnostics/Formatting
+      { '<leader>f', group = '[F]ormat/Fix', buffer = bufnr },
+      {
+        '<leader>fd',
+        function()
+          vim.diagnostic.open_float { border = 'rounded' }
+        end,
+        desc = 'Line [D]iagnostics',
+        buffer = bufnr,
+      },
+      {
+        '<leader>ff',
+        function()
+          vim.lsp.buf.format { async = true }
+        end,
+        desc = '[F]ormat buffer',
+        buffer = bufnr,
+      },
+    }
+
+    -- Register JDTLS commands
+    jdtls.setup.add_commands()
+
+    -- Setup DAP (debugging)
+    jdtls.setup_dap { hotcodereplace = 'auto' }
+    require('jdtls.dap').setup_dap_main_class_configs()
+  end,
+}
+
+-- Start jdtls
+jdtls.start_or_attach(config)
+
+-- Ensure client attaches to this buffer (workaround for attachment issue)
+vim.defer_fn(function()
+  local clients = vim.lsp.get_clients({ name = 'jdtls' })
+  if #clients > 0 then
+    local client = clients[1]
+    local attached_buffers = vim.lsp.get_buffers_by_client_id(client.id)
+    local is_attached = false
+    for _, buf in ipairs(attached_buffers) do
+      if buf == bufnr then
+        is_attached = true
+        break
       end
-      client.request_sync('java/buildWorkspace', false, 5000, bufnr)
-      fn()
+    end
+    if not is_attached then
+      vim.lsp.buf_attach_client(bufnr, client.id)
     end
   end
+end, 1000)
 
-  vim.api.nvim_buf_create_user_command(bufnr, 'A', function()
-    require('jdtls.tests').goto_subjects()
-  end, {})
+-- Add commands for debugging and restarting
+vim.api.nvim_create_user_command('JavaDebugBundles', function()
+  print('Bundles loaded: ' .. #bundles)
+  for i, bundle in ipairs(bundles) do
+    print(i .. ': ' .. bundle)
+  end
+end, {})
 
-  local triggers = vim.tbl_get(client.server_capabilities, 'completionProvider', 'triggerCharacters')
+vim.api.nvim_create_user_command('JavaCheckTestSupport', function()
+  local clients = vim.lsp.get_clients({ bufnr = 0, name = 'jdtls' })
+  if #clients == 0 then
+    print('No jdtls client attached!')
+    return
+  end
 
-  if triggers then
-    for _, char in ipairs { 'a', 'e', 'i', 'o', 'u' } do
-      if not vim.tbl_contains(triggers, char) then
-        table.insert(triggers, char)
+  local client = clients[1]
+  print('JDTLS client found: ' .. client.name)
+  print('Client ID: ' .. client.id)
+
+  -- Check if the client has the test capability
+  if client.server_capabilities then
+    print('Server capabilities present')
+    if client.server_capabilities.executeCommandProvider then
+      print('Execute command provider available')
+      if client.server_capabilities.executeCommandProvider.commands then
+        print('All available commands (' .. #client.server_capabilities.executeCommandProvider.commands .. ' total):')
+        for _, cmd in ipairs(client.server_capabilities.executeCommandProvider.commands) do
+          print('  - ' .. cmd)
+        end
       end
     end
   end
-  local map = function(mode, keys, func, desc)
-    vim.keymap.set(mode, keys, func, { silent = true, buffer = bufnr, desc = 'LSP: ' .. desc })
+
+  -- Check init_options
+  if client.config and client.config.init_options then
+    print('Init options bundles count: ' .. #(client.config.init_options.bundles or {}))
   end
+end, {})
 
-  map(
-    'n',
-    '<F5>',
-    with_compile(function()
-      local main_config_opts = {
-        verbose = false,
-        on_ready = require('dap').continue,
-      }
-      require('jdtls.dap').setup_dap_main_class_configs(main_config_opts)
-    end),
-    'Run'
-  )
-  map('n', '<A-o>', jdtls.organize_imports, '[O]rganize imports')
-  map('n', '<leader>df', with_compile(jdtls.test_class), 'Run test class')
-  map('n', '<leader>dl', with_compile(require('dap').run_last), 'Run last')
-  map('n', '<leader>dF', with_compile(test_with_profile(jdtls.test_class)), 'Run test class with profiler')
-  map(
-    'n',
-    '<leader>dn',
-    with_compile(function()
-      jdtls.test_nearest_method {
-        config_overrides = {
-          stepFilters = {
-            skipClasses = { '$JDK', 'junit.*' },
-            skipSynthetics = true,
-          },
-        },
-      }
-    end),
-    'Run nearest test method'
-  )
-  map('n', '<leader>dN', with_compile(test_with_profile(jdtls.test_nearest_method)), 'Run nearest test with profiler')
+vim.api.nvim_create_user_command('JavaRestart', function()
+  vim.cmd('LspRestart')
+end, {})
 
-  map('n', 'crv', jdtls.extract_variable_all, 'Extract all variables')
-  map('v', 'crv', [[<ESC><CMD>lua require('jdtls').extract_variable_all(true)<CR>]], 'Extract variable all')
-  map('v', 'crm', [[<ESC><CMD>lua require('jdtls').extract_method(true)<CR>]], 'Extract method')
-  map('n', 'crc', jdtls.extract_constant, 'Extract constant')
-  map('n', '<leader>dp', function()
-    local dap = require 'dap'
-    if dap.session() then
-      local widgets = require 'dap.ui.widgets'
-      widgets.centered_float(widgets.scopes)
-    else
-      client.request_sync('java/buildWorkspace', false, 5000, bufnr)
-      require('jdtls.dap').pick_test()
-    end
-  end, 'Pick test')
-end
-require('jdtls').start_or_attach(config)
+vim.api.nvim_create_user_command('JavaShowLogs', function()
+  vim.cmd('LspLog')
+end, {})
