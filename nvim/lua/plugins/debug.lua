@@ -42,17 +42,17 @@ return {
         { '<leader>dr', dap.restart, desc = '[R]estart' },
 
         -- Breakpoints
-        { '<leader>b', group = '[B]reakpoint' },
-        { '<leader>bb', dap.toggle_breakpoint, desc = 'Toggle [B]reakpoint' },
+        { '<leader>db', group = '[B]reakpoints' },
+        { '<leader>dbt', dap.toggle_breakpoint, desc = '[T]oggle Breakpoint' },
         {
-          '<leader>bc',
+          '<leader>dbc',
           function()
             dap.set_breakpoint(vim.fn.input 'Breakpoint condition: ')
           end,
           desc = '[C]onditional Breakpoint',
         },
-        { '<leader>bl', dap.list_breakpoints, desc = '[L]ist Breakpoints' },
-        { '<leader>bx', dap.clear_breakpoints, desc = 'Clear All Breakpoints' },
+        { '<leader>dbl', dap.list_breakpoints, desc = '[L]ist Breakpoints' },
+        { '<leader>dbx', dap.clear_breakpoints, desc = 'Clear All Breakpoints' },
 
         -- DAP UI
         { '<leader>du', group = 'DAP [U]I' },

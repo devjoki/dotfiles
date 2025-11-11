@@ -14,10 +14,6 @@ return {
           group = '[C]ode',
         },
         {
-          '<leader>d',
-          group = '[D]ocument',
-        },
-        {
           '<leader>r',
           group = '[R]ename',
         },
@@ -92,11 +88,6 @@ return {
         {
           '<leader>b',
           group = '[B]uffers',
-        },
-        {
-          '<leader>bw',
-          [[<cmd>bw <CR>]],
-          desc = '[W]ipe buffer',
         },
         {
           '<leader>u',

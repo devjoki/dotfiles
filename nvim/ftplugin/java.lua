@@ -336,23 +336,30 @@ local config = {
 jdtls.start_or_attach(config)
 
 -- Ensure client attaches to this buffer (workaround for attachment issue)
-vim.defer_fn(function()
+-- This is especially important for session restoration
+local function ensure_attach()
+  local current_buf = vim.api.nvim_get_current_buf()
   local clients = vim.lsp.get_clients({ name = 'jdtls' })
   if #clients > 0 then
     local client = clients[1]
     local attached_buffers = vim.lsp.get_buffers_by_client_id(client.id)
     local is_attached = false
     for _, buf in ipairs(attached_buffers) do
-      if buf == bufnr then
+      if buf == current_buf then
         is_attached = true
         break
       end
     end
     if not is_attached then
-      vim.lsp.buf_attach_client(bufnr, client.id)
+      vim.lsp.buf_attach_client(current_buf, client.id)
     end
   end
-end, 1000)
+end
+
+-- Try multiple times with increasing delays to handle session restoration
+vim.defer_fn(ensure_attach, 500)
+vim.defer_fn(ensure_attach, 1500)
+vim.defer_fn(ensure_attach, 3000)
 
 -- Add commands for debugging and restarting
 vim.api.nvim_create_user_command('JavaDebugBundles', function()
@@ -396,6 +403,18 @@ end, {})
 vim.api.nvim_create_user_command('JavaRestart', function()
   vim.cmd('LspRestart')
 end, {})
+
+vim.api.nvim_create_user_command('JavaAttach', function()
+  local current_buf = vim.api.nvim_get_current_buf()
+  local clients = vim.lsp.get_clients({ name = 'jdtls' })
+  if #clients > 0 then
+    local client = clients[1]
+    vim.lsp.buf_attach_client(current_buf, client.id)
+    print('JDTLS reattached to buffer ' .. current_buf)
+  else
+    print('No JDTLS client found. Try :JavaRestart')
+  end
+end, { desc = 'Force JDTLS to attach to current buffer' })
 
 vim.api.nvim_create_user_command('JavaShowLogs', function()
   vim.cmd('LspLog')
