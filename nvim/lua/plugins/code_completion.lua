@@ -1,6 +1,21 @@
 return {
   {
     'github/copilot.vim',
+    config = function()
+      -- Use Ctrl-Enter to accept Copilot suggestions
+      vim.keymap.set('i', '<C-CR>', 'copilot#Accept("\\<CR>")', {
+        expr = true,
+        replace_keycodes = false,
+        desc = 'Accept Copilot suggestion',
+      })
+      -- Disable default Tab mapping to avoid conflicts with completion and tabout
+      vim.g.copilot_no_tab_map = true
+
+      -- Make Copilot suggestions more subtle so they don't hide autopaired characters
+      vim.cmd([[
+        highlight CopilotSuggestion guifg=#555555 ctermfg=8
+      ]])
+    end,
   },
   { -- Autocompletion
     'hrsh7th/nvim-cmp',
@@ -50,13 +65,30 @@ return {
             luasnip.lsp_expand(args.body)
           end,
         },
-        completion = { completeopt = 'menu,menuone,noinsert' },
+        completion = { completeopt = 'menu,menuone,noinsert,noselect' },
 
         -- For an understanding of why these mappings were
         -- chosen, you will need to read `:help ins-completion`
         --
         -- No, but seriously. Please read `:help ins-completion`, it is really good!
         mapping = cmp.mapping.preset.insert {
+          -- Use Tab for completion navigation only when explicitly selecting, otherwise allow tabout
+          ['<Tab>'] = cmp.mapping(function(fallback)
+            if cmp.visible() and cmp.get_selected_entry() then
+              cmp.confirm({ select = false })
+            elseif cmp.visible() then
+              cmp.select_next_item()
+            else
+              fallback()
+            end
+          end, { 'i', 's' }),
+          ['<S-Tab>'] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+              cmp.select_prev_item()
+            else
+              fallback()
+            end
+          end, { 'i', 's' }),
           -- Select the [n]ext item
           ['<C-n>'] = cmp.mapping.select_next_item(),
           -- Select the [p]revious item
