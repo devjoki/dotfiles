@@ -138,6 +138,10 @@ local config = {
       },
       format = {
         enabled = true,
+        settings = {
+          url = vim.fn.expand('~/.config/work/work_code_style_java.xml'),
+          profile = 'marshmallow',
+        },
       },
     },
     signatureHelp = { enabled = true },
@@ -188,18 +192,98 @@ local config = {
 
   -- Keymaps and other on_attach stuff
   on_attach = function(client, bufnr)
+    -- Enable inlay hints if supported (shows parameter names, inferred types, etc.)
+    if client.server_capabilities.inlayHintProvider and vim.lsp.inlay_hint then
+      vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+    end
+
     -- Use which-key for all keymaps
     require('which-key').add {
       -- LSP navigation
       { 'gd', vim.lsp.buf.definition, desc = 'Go to definition', buffer = bufnr },
-      { 'gr', vim.lsp.buf.references, desc = 'References', buffer = bufnr },
+      { 'gD', vim.lsp.buf.declaration, desc = 'Go to declaration', buffer = bufnr },
+      { 'gi', vim.lsp.buf.implementation, desc = 'Go to implementation', buffer = bufnr },
+      { 'gt', vim.lsp.buf.type_definition, desc = 'Go to type definition', buffer = bufnr },
+      {
+        'gr',
+        function()
+          require('telescope.builtin').lsp_references()
+        end,
+        desc = 'Find references (usages)',
+        buffer = bufnr,
+      },
       { 'K', vim.lsp.buf.hover, desc = 'Hover', buffer = bufnr },
+      {
+        '<C-k>',
+        vim.lsp.buf.signature_help,
+        desc = 'Signature help (parameter hints)',
+        buffer = bufnr,
+        mode = 'i',
+      },
       { '[d', vim.diagnostic.goto_prev, desc = 'Prev diagnostic', buffer = bufnr },
       { ']d', vim.diagnostic.goto_next, desc = 'Next diagnostic', buffer = bufnr },
 
       -- Java group
       { '<leader>j', group = '[J]ava', buffer = bufnr },
       { '<leader>jo', jdtls.organize_imports, desc = '[O]rganize imports', buffer = bufnr },
+      {
+        '<leader>jr',
+        function()
+          require('telescope.builtin').lsp_references()
+        end,
+        desc = 'Find [R]eferences (usages)',
+        buffer = bufnr,
+      },
+      {
+        '<leader>ji',
+        function()
+          require('telescope.builtin').lsp_incoming_calls()
+        end,
+        desc = '[I]ncoming calls (who calls this)',
+        buffer = bufnr,
+      },
+      {
+        '<leader>jO',
+        function()
+          require('telescope.builtin').lsp_outgoing_calls()
+        end,
+        desc = '[O]utgoing calls (what this calls)',
+        buffer = bufnr,
+      },
+      {
+        '<leader>js',
+        function()
+          require('telescope.builtin').lsp_document_symbols()
+        end,
+        desc = '[S]ymbols in file (methods/fields)',
+        buffer = bufnr,
+      },
+      {
+        '<leader>jS',
+        function()
+          require('telescope.builtin').lsp_dynamic_workspace_symbols()
+        end,
+        desc = '[S]ymbols in workspace (search project)',
+        buffer = bufnr,
+      },
+      {
+        '<leader>jh',
+        function()
+          require('jdtls').super_implementation()
+        end,
+        desc = 'Go to super [H]ierarchy (parent class/method)',
+        buffer = bufnr,
+      },
+      {
+        '<leader>jH',
+        function()
+          if vim.lsp.inlay_hint then
+            vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr }), { bufnr = bufnr })
+          end
+        end,
+        desc = 'Toggle inlay [H]ints (type annotations)',
+        buffer = bufnr,
+      },
       { '<leader>jv', jdtls.extract_variable, desc = 'Extract [V]ariable', buffer = bufnr, mode = 'n' },
       {
         '<leader>jv',
@@ -311,6 +395,22 @@ local config = {
           vim.diagnostic.open_float { border = 'rounded' }
         end,
         desc = 'Line [D]iagnostics',
+        buffer = bufnr,
+      },
+      {
+        '<leader>fl',
+        function()
+          require('telescope.builtin').diagnostics({ bufnr = 0 })
+        end,
+        desc = '[L]ist diagnostics in file',
+        buffer = bufnr,
+      },
+      {
+        '<leader>fL',
+        function()
+          require('telescope.builtin').diagnostics()
+        end,
+        desc = '[L]ist diagnostics in workspace',
         buffer = bufnr,
       },
       {

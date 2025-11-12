@@ -8,6 +8,7 @@ return {
       'folke/which-key.nvim',
     },
     config = function()
+
       local function on_attach(bufnr)
         local api = require('nvim-tree.api')
 
@@ -104,19 +105,75 @@ return {
         },
         renderer = {
           group_empty = true,
+          highlight_git = true,
+          icons = {
+            show = {
+              git = true,
+              folder = true,
+              file = true,
+              folder_arrow = true,
+            },
+            glyphs = {
+              git = {
+                unstaged = "✗",
+                staged = "✓",
+                unmerged = "",
+                renamed = "➜",
+                untracked = "★",
+                deleted = "",
+                ignored = "◌",
+              },
+            },
+          },
         },
         filters = {
-          dotfiles = true,
+          dotfiles = false, -- Show dotfiles by default (toggle with 'H')
+          custom = { '.git', 'node_modules', '.cache' }, -- Always hide these
         },
         update_focused_file = {
           enable = true,
+          update_root = false, -- Don't change root when opening files
+        },
+        diagnostics = {
+          enable = false, -- Disabled due to sign compatibility issues
+        },
+        git = {
+          enable = true,
+          ignore = false, -- Show gitignored files
+        },
+        actions = {
+          open_file = {
+            quit_on_open = false,
+            window_picker = {
+              enable = true,
+            },
+          },
+        },
+        trash = {
+          cmd = "trash",
+          require_confirm = true,
+        },
+        live_filter = {
+          prefix = "[FILTER]: ",
+          always_show_folders = false,
         },
         on_attach = on_attach,
       }
 
       -- Register global keymaps with which-key
       require('which-key').add {
-        { '<leader>wt', ':NvimTreeToggle<CR>', mode = { 'n', 'v' }, desc = 'NvimTree Toggle' },
+        { '<leader>wf', group = '[F]iles (NvimTree)' },
+        { '<leader>wft', ':NvimTreeToggle<CR>', mode = { 'n', 'v' }, desc = '[T]oggle tree' },
+        { '<leader>wff', ':NvimTreeFindFile<CR>', mode = { 'n', 'v' }, desc = '[F]ind current file in tree' },
+        { '<leader>wfc', ':NvimTreeCollapse<CR>', mode = { 'n', 'v' }, desc = '[C]ollapse all folders' },
+        {
+          '<leader>wfo',
+          function()
+            require('nvim-tree.api').tree.expand_all()
+          end,
+          mode = { 'n', 'v' },
+          desc = '[O]pen/Expand all folders',
+        },
       }
     end,
   },

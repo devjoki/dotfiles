@@ -99,10 +99,6 @@ return {
           group = '[T]rouble',
         },
         {
-          '<leader>b',
-          group = '[B]uffers',
-        },
-        {
           '<leader>u',
           group = '[U]tils',
         },
