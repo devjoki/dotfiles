@@ -65,6 +65,33 @@ return {
         capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
       end)
 
+      -- Global LSP keybindings (not buffer-specific)
+      require('which-key').add {
+        {
+          '<leader>wlr',
+          function()
+            -- Restart LSP for current buffer
+            vim.cmd 'LspRestart'
+            vim.notify('LSP restarted', vim.log.levels.INFO)
+          end,
+          desc = '[L]SP [R]estart',
+        },
+        {
+          '<leader>er',
+          function()
+            -- Close and reopen current file to reattach LSP
+            local filepath = vim.fn.expand('%:p')
+            if filepath == '' then
+              vim.notify('No file to reopen', vim.log.levels.WARN)
+              return
+            end
+            vim.cmd('edit ' .. vim.fn.fnameescape(filepath))
+            vim.notify('File reopened', vim.log.levels.INFO)
+          end,
+          desc = '[R]eopen buffer',
+        },
+      }
+
       -- Common on_attach
       local on_attach = function(client, bufnr)
         require('which-key').add {

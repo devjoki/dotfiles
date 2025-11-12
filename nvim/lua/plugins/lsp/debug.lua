@@ -13,6 +13,11 @@ return {
       dapui.setup()
 
       dap.listeners.after.event_initialized['dapui_config'] = function()
+        -- Close nvim-tree if open
+        local nvim_tree_api = require('nvim-tree.api')
+        if nvim_tree_api.tree.is_visible() then
+          nvim_tree_api.tree.close()
+        end
         dapui.open()
       end
       -- Don't auto-close on test termination so you can see results

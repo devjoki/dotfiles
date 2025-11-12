@@ -24,6 +24,9 @@ return {
         auto_set_keymaps = true,
         auto_apply_diff_after_generation = false,
         support_paste_from_clipboard = false,
+        auto_approve_tool_permissions = false,
+        enable_token_counting = false,   -- Whether to enable token counting. Default to true.
+        confirmation_ui_style = 'popup', -- Use popup dialog for tool permissions (better keyboard support)
       },
       file_selector = {
         provider = 'native',
@@ -59,10 +62,24 @@ return {
         ---@type "right" | "left" | "top" | "bottom"
         position = 'right',
         wrap = true,
-        width = 30, -- percentage
+        width = 40, -- Increased width for better visibility
         sidebar_header = {
           align = 'center',
           rounded = true,
+        },
+        edit = {
+          border = 'rounded',
+          start_insert = true,
+        },
+        ask = {
+          floating = false, -- Keep it in sidebar
+          start_insert = true,
+          border = 'rounded',
+          focus_on_apply = 'ours',
+        },
+        input = {
+          prefix = "> ",
+          height = 10, -- Height of the input window in vertical layout
         },
       },
       highlights = {
@@ -114,52 +131,37 @@ return {
       -- Setup which-key keybindings
       require('which-key').add {
         -- Avante AI group
-        { '<leader>a', group = '[A]vante AI' },
-        { '<leader>aa', '<cmd>AvanteAsk<cr>', desc = '[A]sk Claude', mode = { 'n', 'v' } },
-        { '<leader>ae', '<cmd>AvanteEdit<cr>', desc = '[E]dit with Claude', mode = { 'n', 'v' } },
+        { '<leader>a',  group = '[A]vante AI' },
+        { '<leader>aa', '<cmd>AvanteAsk<cr>',     desc = '[A]sk Claude',       mode = { 'n', 'v' } },
+        { '<leader>ae', '<cmd>AvanteEdit<cr>',    desc = '[E]dit with Claude', mode = { 'n', 'v' } },
         { '<leader>ar', '<cmd>AvanteRefresh<cr>', desc = '[R]efresh' },
-        { '<leader>at', '<cmd>AvanteToggle<cr>', desc = '[T]oggle Sidebar' },
-        {
-          '<leader>ac',
-          function()
-            -- Find a valid file buffer
-            local found_valid_buffer = false
-            local current_buftype = vim.bo.buftype
-
-            if current_buftype ~= '' and current_buftype ~= 'acwrite' then
-              -- Try to find a normal file buffer
-              for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-                if vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buftype == '' then
-                  local bufname = vim.api.nvim_buf_get_name(buf)
-                  if bufname ~= '' and not bufname:match('^%[') then
-                    vim.api.nvim_set_current_buf(buf)
-                    found_valid_buffer = true
-                    break
-                  end
-                end
-              end
-            else
-              found_valid_buffer = true
-            end
-
-            if found_valid_buffer then
-              local ok, err = pcall(vim.cmd, 'AvanteClear')
-              if not ok then
-                vim.notify('AvanteClear error: ' .. tostring(err), vim.log.levels.WARN)
-              end
-            else
-              vim.notify('No valid file buffer found. Open a file first.', vim.log.levels.WARN)
-            end
-          end,
-          desc = '[C]lear Chat'
-        },
+        { '<leader>at', '<cmd>AvanteToggle<cr>',  desc = '[T]oggle Sidebar' },
         { '<leader>af', '<cmd>AvanteFocus<cr>', desc = '[F]ocus Sidebar' },
         {
           '<leader>as',
           function()
-            require('avante.api').switch_provider()
+            -- Force stop Avante
+            vim.cmd('AvanteStop')
+            vim.notify('Avante stopped', vim.log.levels.WARN)
           end,
-          desc = '[S]witch Provider',
+          desc = '[S]top/Cancel Request',
+        },
+        {
+          '<leader>aS',
+          function()
+            -- Nuclear option - close all Avante windows and stop
+            pcall(vim.cmd, 'AvanteStop')
+            pcall(vim.cmd, 'AvanteToggle')
+            -- Close any Avante-related buffers
+            for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+              local ft = vim.bo[buf].filetype
+              if ft == 'Avante' or ft == 'AvanteInput' then
+                pcall(vim.api.nvim_buf_delete, buf, { force = true })
+              end
+            end
+            vim.notify('Avante force stopped and closed', vim.log.levels.ERROR)
+          end,
+          desc = 'Force [S]top & Close (Emergency)',
         },
       }
     end,
