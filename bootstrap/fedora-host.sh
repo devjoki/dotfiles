@@ -82,6 +82,13 @@ if ! command -v mcfly &> /dev/null; then
     curl -LSfs https://raw.githubusercontent.com/cantino/mcfly/master/ci/install.sh | sh -s -- --git cantino/mcfly
 fi
 
+# Install fzf (fuzzy finder - required by fzf-tab)
+if ! command -v fzf &> /dev/null; then
+    echo "Installing fzf..."
+    git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+    ~/.fzf/install --key-bindings --completion --no-update-rc
+fi
+
 # Create config properties file
 touch "$HOME/.zsh_config.properties"
 

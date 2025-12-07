@@ -63,6 +63,7 @@ install_app_if_not_exists "lazygit" "brew install jesseduffield/lazygit/lazygit"
 install_app_if_not_exists "eza" "brew install eza"
 install_app_if_not_exists "zoxide" "brew install zoxide"
 install_app_if_not_exists "mcfly" "brew install mcfly"
+install_app_if_not_exists "fzf" "brew install fzf"
 
 # Install Rust
 if ! command -v rustup &> /dev/null; then
