@@ -66,6 +66,12 @@ if ! command -v zoxide &> /dev/null; then
     curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
 fi
 
+# Install eza (modern replacement for ls)
+if ! command -v eza &> /dev/null; then
+    echo "Installing eza..."
+    sudo dnf install -y eza
+fi
+
 # Create config properties file
 touch "$HOME/.zsh_config.properties"
 
