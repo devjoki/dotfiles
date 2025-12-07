@@ -60,19 +60,11 @@ if ! command -v wezterm &> /dev/null; then
     sudo dnf install -y wezterm
 fi
 
-if ! command -v tmux &> /dev/null; then
-    echo "Installing tmux..."
-fi
-
 # Create config properties file
 touch "$HOME/.zsh_config.properties"
 
 # Create symbolic links for configurations
 echo "Creating symbolic links..."
-
-if [ -f "$SCRIPT_DIR/tmux.conf" ]; then
-    create_symlink "$SCRIPT_DIR/tmux.conf" "$HOME/.tmux.conf" --override
-fi
 
 if [ -f "$SCRIPT_DIR/zsh/.zshrc" ]; then
     create_symlink "$SCRIPT_DIR/zsh/.zshrc" "$HOME/.zshrc" --override
@@ -110,10 +102,6 @@ source "$SCRIPT_DIR/bootstrap/common-symlinks.sh"
 
 if [ -f "$SCRIPT_DIR/wezterm.lua" ]; then
     create_symlink "$SCRIPT_DIR/wezterm.lua" "$HOME/.wezterm.lua" --override
-fi
-
-if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then
-    git clone https://github.com/tmux-plugins/tpm.git ~/.tmux/plugins/tpm
 fi
 
 echo ""

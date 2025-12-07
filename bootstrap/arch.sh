@@ -15,7 +15,7 @@ fi
 
 
 # Install from official repos
-sudo pacman -S --noconfirm neovim tmux
+sudo pacman -S --noconfirm neovim
 
 # Install starship
 if ! command -v starship &> /dev/null; then
