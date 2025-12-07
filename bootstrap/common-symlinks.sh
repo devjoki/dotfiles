@@ -42,6 +42,11 @@ else
 	echo "Zsh-shared already in place at $HOME/.config/zsh-shared"
 fi
 
+# Install zsh extensions if not already present
+if [ -f "$SCRIPT_DIR/zsh-shared/zsh_extensions/install.sh" ]; then
+	bash "$SCRIPT_DIR/zsh-shared/zsh_extensions/install.sh"
+fi
+
 # Link utils directory to ~/.config/utils
 if [ -d "$SCRIPT_DIR/utils" ]; then
 	create_symlink "$SCRIPT_DIR/utils" "$HOME/.config/utils" --override
