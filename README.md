@@ -5,12 +5,37 @@ This repo contains my common configurations with automated bootstrap scripts for
 
 ## Quick Start
 
+**Important:** Clone this repo to a separate location (NOT `~/.config`) to avoid circular symlink issues.
+
 ```bash
-cd ~/.config
+# Clone to a dedicated location
+git clone <your-repo-url> ~/dotfiles
+cd ~/dotfiles
+
+# Run the bootstrap script
 ./bootstrap.sh
 ```
 
-The interactive script will detect your OS and guide you through the setup.
+The interactive script will:
+- Detect your OS
+- Guide you through the setup
+- Create symlinks from `~/.config` to this repo
+
+## Migrating from ~/.config
+
+If you're currently running this repo from `~/.config`, migrate it:
+
+```bash
+# 1. Move your current ~/.config to the new location
+mv ~/.config ~/dotfiles
+
+# 2. Create a fresh ~/.config directory
+mkdir ~/.config
+
+# 3. Run bootstrap to create proper symlinks
+cd ~/dotfiles
+./bootstrap.sh
+```
 
 ## Supported Platforms
 

@@ -5,6 +5,20 @@
 
 set -e
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+# Prevent running from ~/.config to avoid circular symlinks
+if [ "$SCRIPT_DIR" = "$HOME/.config" ]; then
+	echo "ERROR: Do not run bootstrap from ~/.config directory!"
+	echo ""
+	echo "This repository should be cloned to a separate location."
+	echo "Recommended setup:"
+	echo "  git clone <your-repo> ~/dotfiles"
+	echo "  cd ~/dotfiles"
+	echo "  ./bootstrap.sh"
+	echo ""
+	exit 1
+fi
+
 #shellcheck disable=SC1091
 source "$SCRIPT_DIR/utils/utils.sh"
 
