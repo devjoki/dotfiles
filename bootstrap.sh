@@ -133,27 +133,64 @@ case $PLATFORM in
 		;;
 	fedora-toolbox)
 		echo "Fedora Toolbox setup has two parts:"
-		echo "  1. Host setup (GUI apps)"
-		echo "  2. Toolbox setup (dev tools)"
 		echo ""
-		if choice "Setup host first?"; then
-			source "$SCRIPT_DIR/bootstrap/fedora-host.sh"
-			echo ""
-			echo "Host setup complete!"
-			echo ""
-		fi
-		if choice "Setup toolbox now?"; then
-			# Check if in toolbox
-			if [ -z "$TOOLBOX_PATH" ]; then
-				echo_warn "You need to be inside a toolbox to run toolbox bootstrap"
-				echo "Run these commands:"
-				echo "  toolbox create dev"
-				echo "  toolbox enter dev"
-				echo "  cd ~/.config && ./bootstrap.sh"
-			else
-				source "$SCRIPT_DIR/bootstrap/toolbox.sh"
-			fi
-		fi
+		echo "Please select what to setup:"
+		echo "  1) Host setup (GUI apps - run on host)"
+		echo "  2) Toolbox setup (dev tools - run inside toolbox)"
+		echo "  3) Both (host first, then toolbox)"
+		echo "  0) Exit"
+		echo ""
+		read -p "Enter your choice [0-3]: " TOOLBOX_CHOICE
+
+		case $TOOLBOX_CHOICE in
+			1)
+				echo ""
+				echo "=== Setting up Fedora Host ==="
+				source "$SCRIPT_DIR/bootstrap/fedora-host.sh"
+				;;
+			2)
+				echo ""
+				echo "=== Setting up Toolbox ==="
+				# Check if in toolbox
+				if [ -z "$TOOLBOX_PATH" ]; then
+					echo_warn "You need to be inside a toolbox to run toolbox bootstrap"
+					echo "Run these commands:"
+					echo "  toolbox create dev"
+					echo "  toolbox enter dev"
+					echo "  cd ~/.config && ./bootstrap.sh"
+					exit 1
+				else
+					source "$SCRIPT_DIR/bootstrap/toolbox.sh"
+				fi
+				;;
+			3)
+				echo ""
+				echo "=== Setting up Fedora Host First ==="
+				source "$SCRIPT_DIR/bootstrap/fedora-host.sh"
+				echo ""
+				echo "Host setup complete!"
+				echo ""
+				if choice "Setup toolbox now?"; then
+					if [ -z "$TOOLBOX_PATH" ]; then
+						echo_warn "You need to be inside a toolbox to run toolbox bootstrap"
+						echo "Run these commands:"
+						echo "  toolbox create dev"
+						echo "  toolbox enter dev"
+						echo "  cd ~/.config && ./bootstrap.sh"
+					else
+						source "$SCRIPT_DIR/bootstrap/toolbox.sh"
+					fi
+				fi
+				;;
+			0)
+				echo "Exiting..."
+				exit 0
+				;;
+			*)
+				echo_err "Invalid choice!"
+				exit 1
+				;;
+		esac
 		;;
 	arch)
 		source "$SCRIPT_DIR/bootstrap/arch.sh"

@@ -1,13 +1,17 @@
+# Add ~/.local/bin to PATH (for zoxide, starship, vfox, etc.)
+export PATH="$HOME/.local/bin:$PATH"
+
 source "$HOME/.config/utils/utils.sh"
 source "$HOME/.config/zsh/aliases"
 
 export EZA_CONFIG_DIR="$HOME/.config/eza"
 
-eval "$(starship init zsh)"
-eval "$(vfox activate zsh)"
+# Initialize tools (check if they exist first to avoid errors)
+command -v starship &> /dev/null && eval "$(starship init zsh)"
+command -v vfox &> /dev/null && eval "$(vfox activate zsh)"
 autoload -U compinit; compinit
 source "$HOME/.config/zsh-shared/zsh_extensions/fzf-tab/fzf-tab.plugin.zsh"
-eval "$(zoxide init zsh --cmd cd)"
+command -v zoxide &> /dev/null && eval "$(zoxide init zsh --cmd cd)"
 # Additinal config that should not be sourceControlled
 source_if_exists "$HOME/.config/zsh-shared/zsh_extensions/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 source_if_exists "$HOME/.cargo/env"
