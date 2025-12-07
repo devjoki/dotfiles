@@ -59,6 +59,7 @@ install_package_if_not_exists "latexmk"
 
 touch "$HOME/.zsh_config.properties"
 export NVIM_CONFIG="nvim-full"
+export ZSH_CONFIG="zsh-full"
 source "$SCRIPT_DIR/bootstrap/common-symlinks.sh"
 
 echo "=== Fedora Bootstrap Complete ==="

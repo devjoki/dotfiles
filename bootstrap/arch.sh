@@ -64,6 +64,7 @@ sudo pacman -S --noconfirm texlive-most zathura
 
 touch "$HOME/.zsh_config.properties"
 export NVIM_CONFIG="nvim-full"
+export ZSH_CONFIG="zsh-full"
 source "$SCRIPT_DIR/bootstrap/common-symlinks.sh"
 
 echo "=== Arch Bootstrap Complete ==="

@@ -106,6 +106,7 @@ touch "$HOME/.zsh_config.properties"
 # Create symbolic links
 echo "Creating symbolic links..."
 export NVIM_CONFIG="nvim-full"
+export ZSH_CONFIG="zsh-full"
 source "$SCRIPT_DIR/bootstrap/common-symlinks.sh"
 
 echo "=== WSL Bootstrap Complete ==="
