@@ -1,6 +1,5 @@
 local M = {}
 local wezterm = require("wezterm")
-local colorscheme = require("colorscheme")
 M.keys = {
 	{
 		mods = "LEADER",
@@ -62,7 +61,7 @@ M.keys = {
 		action = wezterm.action.ReloadConfiguration,
 	},
 }
-M.color_scheme = colorscheme.scheme
+M.color_scheme = "Tokyo Night"
 M.leader = { key = "W", mods = "CMD|SHIFT", timeout_milliseconds = 1000 }
 M.enable_scroll_bar = true
 

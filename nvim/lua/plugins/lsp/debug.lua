@@ -12,22 +12,78 @@ return {
       local dapui = require 'dapui'
       dapui.setup()
 
+      -- Close nvim-tree when debugging starts (from tests, etc.)
       dap.listeners.after.event_initialized['dapui_config'] = function()
-        -- Close nvim-tree if open
         local nvim_tree_api = require('nvim-tree.api')
         if nvim_tree_api.tree.is_visible() then
           nvim_tree_api.tree.close()
         end
         dapui.open()
       end
-      -- Don't auto-close on test termination so you can see results
-      -- Manually close with :DapTerminate or <leader>dc if needed
-      -- dap.listeners.before.event_terminated['dapui_config'] = function()
-      --   dapui.close()
-      -- end
-      -- dap.listeners.before.event_exited['dapui_config'] = function()
-      --   dapui.close()
-      -- end
+
+      -- Helper functions to manage nvim-tree with DAP UI (for manual open/close/toggle)
+      local function dapui_open_wrapper()
+        local nvim_tree_api = require('nvim-tree.api')
+        if nvim_tree_api.tree.is_visible() then
+          nvim_tree_api.tree.close()
+        end
+        dapui.open()
+      end
+
+      local function dapui_close_wrapper()
+        dapui.close()
+        -- Small delay to let LSP clean up before reopening nvim-tree
+        vim.defer_fn(function()
+          local nvim_tree_api = require('nvim-tree.api')
+          nvim_tree_api.tree.open()
+          -- Return focus to the first normal file window
+          for _, win in ipairs(vim.api.nvim_list_wins()) do
+            local buf = vim.api.nvim_win_get_buf(win)
+            local buftype = vim.bo[buf].buftype
+            if buftype == '' then  -- Normal file buffer
+              vim.api.nvim_set_current_win(win)
+              break
+            end
+          end
+        end, 100)
+      end
+
+      local function dapui_toggle_wrapper()
+        local nvim_tree_api = require('nvim-tree.api')
+        -- Check if DAP UI is currently open by checking for visible DAP UI windows
+        local dapui_open = false
+        for _, win in ipairs(vim.api.nvim_list_wins()) do
+          local buf = vim.api.nvim_win_get_buf(win)
+          local ft = vim.bo[buf].filetype
+          if ft:match('^dapui_') then
+            dapui_open = true
+            break
+          end
+        end
+
+        if dapui_open then
+          -- Closing DAP UI, open nvim-tree after small delay
+          dapui.toggle()
+          vim.defer_fn(function()
+            nvim_tree_api.tree.open()
+            -- Return focus to the first normal file window
+            for _, win in ipairs(vim.api.nvim_list_wins()) do
+              local buf = vim.api.nvim_win_get_buf(win)
+              local buftype = vim.bo[buf].buftype
+              if buftype == '' then  -- Normal file buffer
+                vim.api.nvim_set_current_win(win)
+                break
+              end
+            end
+          end, 100)
+        else
+          -- Opening DAP UI, close nvim-tree
+          if nvim_tree_api.tree.is_visible() then
+            nvim_tree_api.tree.close()
+          end
+          dapui.toggle()
+        end
+      end
 
       -- Keymaps
       require('which-key').add {
@@ -61,9 +117,9 @@ return {
 
         -- DAP UI
         { '<leader>du', group = 'DAP [U]I' },
-        { '<leader>duc', dapui.close, desc = '[C]lose UI' },
-        { '<leader>duo', dapui.open, desc = '[O]pen UI' },
-        { '<leader>dut', dapui.toggle, desc = '[T]oggle UI' },
+        { '<leader>duc', dapui_close_wrapper, desc = '[C]lose UI' },
+        { '<leader>duo', dapui_open_wrapper, desc = '[O]pen UI' },
+        { '<leader>dut', dapui_toggle_wrapper, desc = '[T]oggle UI' },
       }
     end,
   },

@@ -14,16 +14,18 @@ return {
     local mason_path = share_path .. '/mason/'
     local extension_path = mason_path .. 'packages/codelldb/extension/'
     local codelldb_path = extension_path .. 'adapter/codelldb'
-    local liblldb_path = extension_path .. 'lldb/lib/liblldb.so'
+
+    -- Platform-specific liblldb path
+    local liblldb_path
+    if vim.fn.has('mac') == 1 then
+      liblldb_path = extension_path .. 'lldb/lib/liblldb.dylib'
+    else
+      liblldb_path = extension_path .. 'lldb/lib/liblldb.so'
+    end
 
     vim.g.rustaceanvim = {
       dap = {
-        adapter = {
-          type = 'executable',
-          command = codelldb_path,
-          args = { '--port', '${port}' },
-          name = 'codelldb',
-        },
+        adapter = require('rustaceanvim.config').get_codelldb_adapter(codelldb_path, liblldb_path),
       },
       server = {
         on_attach = function(client, bufnr)
@@ -44,12 +46,77 @@ return {
               desc = 'Rust code actions',
               buffer = bufnr,
             },
+            {
+              '<Leader>r',
+              group = '[R]ust',
+              buffer = bufnr,
+            },
+            {
+              '<Leader>rr',
+              function()
+                vim.cmd.RustLsp('runnables')
+              end,
+              desc = '[R]unnables',
+              buffer = bufnr,
+            },
+            {
+              '<Leader>rd',
+              function()
+                vim.cmd.RustLsp('debuggables')
+              end,
+              desc = '[D]ebuggables',
+              buffer = bufnr,
+            },
+            {
+              '<Leader>rt',
+              function()
+                vim.cmd.RustLsp('testables')
+              end,
+              desc = '[T]estables',
+              buffer = bufnr,
+            },
+            {
+              '<Leader>re',
+              function()
+                vim.cmd.RustLsp('expandMacro')
+              end,
+              desc = '[E]xpand Macro',
+              buffer = bufnr,
+            },
+            {
+              '<Leader>rc',
+              function()
+                vim.cmd.RustLsp('openCargo')
+              end,
+              desc = 'Open [C]argo.toml',
+              buffer = bufnr,
+            },
+            {
+              '<Leader>rp',
+              function()
+                vim.cmd.RustLsp('parentModule')
+              end,
+              desc = '[P]arent Module',
+              buffer = bufnr,
+            },
           }
         end,
         default_settings = {
           ['rust-analyzer'] = {
             cargo = {
               allFeatures = true,
+              loadOutDirsFromCheck = true,
+            },
+            check = {
+              command = 'clippy',
+            },
+            procMacro = {
+              enable = true,
+            },
+            inlayHints = {
+              lifetimeElisionHints = {
+                enable = 'always',
+              },
             },
           },
         },

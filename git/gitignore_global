@@ -6,3 +6,5 @@
 .settings/
 .factorypath
 bin/
+
+/.claude

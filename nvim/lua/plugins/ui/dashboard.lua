@@ -113,6 +113,7 @@ return {
             { action = "Telescope live_grep",                                                         desc = " Find Text",                 icon = " ", key = "g" },
             { action = [[require('telescope.builtin').find_files { cwd = vim.fn.stdpath 'config' }]], desc = " Config",                    icon = " ", key = "c" },
             { action = "AutoSession restore",             desc = " Restore Session",           icon = " ", key = "s" },
+            { action = 'lua require("which-key").show("<leader>uc")',                                 desc = " UI Color Scheme",           icon = "󰏘 ", key = "u" },
             { action = "LazyGit",                                                                     desc = " LazyGit",                   icon = " ", key = "l" },
             { action = "Lazy",                                                                        desc = " Lazy Package Manager",      icon = "󰒲 ", key = "p" },
             { action = "Mason",                                                                       desc = " Mason Package Manager",     icon = " ", key = "m" },

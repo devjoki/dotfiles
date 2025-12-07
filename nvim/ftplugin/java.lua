@@ -139,7 +139,7 @@ local config = {
       format = {
         enabled = true,
         settings = {
-          url = vim.fn.expand('~/.config/work/work_code_style_java.xml'),
+          url = vim.fn.expand('~/.config/work/marshmallow-eclipse.xml'),
           profile = 'marshmallow',
         },
       },

@@ -34,8 +34,47 @@ vim.opt.clipboard = 'unnamedplus'
 -- Enable break indent
 vim.opt.breakindent = true
 
--- Save undo history
+-- Save undo history with custom handling for long paths
 vim.opt.undofile = true
+local undodir = vim.fn.stdpath('data') .. '/undo'
+vim.fn.mkdir(undodir, 'p')
+vim.opt.undodir = undodir
+
+-- Hook into Neovim's undo file creation to shorten long filenames
+vim.api.nvim_create_autocmd({ 'BufReadPre', 'BufNewFile' }, {
+  group = vim.api.nvim_create_augroup('UndoFileShorten', { clear = true }),
+  callback = function(ev)
+    local filepath = vim.api.nvim_buf_get_name(ev.buf)
+    if filepath and filepath ~= '' then
+      -- Calculate what the undo filename would be
+      local encoded = filepath:gsub('/', '%%'):gsub(':', '%%')
+      -- If it's too long (approaching filesystem limit), use a hash-based name
+      if #encoded > 200 then
+        local hash = vim.fn.sha256(filepath):sub(1, 32)
+        local basename = vim.fn.fnamemodify(filepath, ':t')
+        -- Set buffer-local undofile name by creating a custom undo directory
+        local custom_undo = undodir .. '/' .. basename .. '.' .. hash
+        vim.bo[ev.buf].undofile = false  -- Disable default
+        -- We'll manually manage undo persistence
+        vim.api.nvim_create_autocmd('BufWritePost', {
+          buffer = ev.buf,
+          callback = function()
+            vim.cmd('wundo! ' .. vim.fn.fnameescape(custom_undo))
+          end,
+        })
+        vim.api.nvim_create_autocmd('BufReadPost', {
+          buffer = ev.buf,
+          once = true,
+          callback = function()
+            if vim.fn.filereadable(custom_undo) == 1 then
+              vim.cmd('silent! rundo ' .. vim.fn.fnameescape(custom_undo))
+            end
+          end,
+        })
+      end
+    end
+  end,
+})
 
 -- Case-insensitive searching UNLESS \C or capital in search
 vim.opt.ignorecase = true

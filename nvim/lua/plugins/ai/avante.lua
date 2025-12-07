@@ -27,6 +27,7 @@ return {
         auto_approve_tool_permissions = false,
         enable_token_counting = false,   -- Whether to enable token counting. Default to true.
         confirmation_ui_style = 'popup', -- Use popup dialog for tool permissions (better keyboard support)
+        acp_follow_agent_locations = false,
       },
       file_selector = {
         provider = 'native',
@@ -136,7 +137,7 @@ return {
         { '<leader>ae', '<cmd>AvanteEdit<cr>',    desc = '[E]dit with Claude', mode = { 'n', 'v' } },
         { '<leader>ar', '<cmd>AvanteRefresh<cr>', desc = '[R]efresh' },
         { '<leader>at', '<cmd>AvanteToggle<cr>',  desc = '[T]oggle Sidebar' },
-        { '<leader>af', '<cmd>AvanteFocus<cr>', desc = '[F]ocus Sidebar' },
+        { '<leader>af', '<cmd>AvanteFocus<cr>',   desc = '[F]ocus Sidebar' },
         {
           '<leader>as',
           function()

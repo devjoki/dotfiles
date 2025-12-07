@@ -16,6 +16,8 @@ return {
     'shellcheck',
     'tailwindcss',
     'texlab',
+    'latexindent',
+    'bibtex-tidy',
     'terraformls',
   },
   handler_config = {
@@ -59,6 +61,43 @@ return {
     tsserver = {},
     bashls = {
       filetypes = { 'sh', 'zsh' },
+    },
+    texlab = {
+      settings = {
+        texlab = {
+          build = {
+            executable = 'latexmk',
+            args = {
+              '-pdf',
+              '-interaction=nonstopmode',
+              '-synctex=1',
+              '-outdir=build',
+              '-auxdir=build',
+              '%f',
+            },
+            onSave = false, -- Let VimTeX handle compilation
+            forwardSearchAfter = false,
+          },
+          auxDirectory = 'build',
+          forwardSearch = {
+            executable = 'displayline',  -- For Skim
+            args = { '%l', '%p', '%f' },
+            -- For Zathura use: executable = 'zathura', args = { '--synctex-forward', '%l:1:%f', '%p' }
+          },
+          chktex = {
+            onOpenAndSave = true,
+            onEdit = false,
+          },
+          diagnosticsDelay = 300,
+          latexFormatter = 'latexindent',
+          latexindent = {
+            ['local'] = nil, -- Path to local indentconfig.yaml
+            modifyLineBreaks = false,
+          },
+          bibtexFormatter = 'texlab',
+          formatterLineLength = 80,
+        },
+      },
     },
   },
 }

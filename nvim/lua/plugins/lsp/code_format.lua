@@ -23,6 +23,10 @@ return {
             javascript = { 'prettierd', 'prettier', stop_after_first = true },
             typescript = { 'prettierd', 'prettier', stop_after_first = true },
             css = { 'prettierd', 'prettier', stop_after_first = true },
+            json = { 'jq' },
+            jsonc = { 'jq' },
+            tex = { 'latexindent' },
+            bib = { 'bibtex-tidy' },
             -- kotlin = { 'ktlint' },
             -- typescript = { 'eslint_d' },
             -- Conform can also run multiple formatters sequentially
