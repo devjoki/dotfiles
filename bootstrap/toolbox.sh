@@ -54,32 +54,22 @@ if [[ "$SHELL" != "$(which zsh)" ]]; then
     chsh -s "$(which zsh)"
 fi
 
-# Install Homebrew (useful for some development tools)
-if ! command -v brew &> /dev/null; then
-    echo "Installing Homebrew..."
-    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-    # Set up Homebrew environment
-    if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
-        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-        # Add to profile
-        echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> "$HOME/.profile"
-    fi
-else
-    echo "Homebrew is already installed"
-    eval "$(brew shellenv)" 2>/dev/null || true
-fi
-
 # Install Neovim (full version with LSP support)
 if ! command -v nvim &> /dev/null; then
     echo "Installing Neovim..."
     sudo dnf install -y neovim
 fi
 
+# Install starship prompt
+if ! command -v starship &> /dev/null; then
+    echo "Installing starship..."
+    curl -sS https://starship.rs/install.sh | sh -s -- -y
+fi
+
 # Install version manager (vfox)
 if ! command -v vfox &> /dev/null; then
     echo "Installing vfox..."
-    brew install vfox
+    curl -sSL https://raw.githubusercontent.com/version-fox/vfox/main/install.sh | bash
 fi
 
 # Activate vfox
@@ -93,16 +83,23 @@ if ! command -v rustup &> /dev/null; then
     rustup install stable
 fi
 
-# Install lazygit
+# Install lazygit via dnf copr
 if ! command -v lazygit &> /dev/null; then
     echo "Installing lazygit..."
-    brew install jesseduffield/lazygit/lazygit
+    sudo dnf copr enable atim/lazygit -y
+    sudo dnf install -y lazygit
+fi
+
+# Install zoxide
+if ! command -v zoxide &> /dev/null; then
+    echo "Installing zoxide..."
+    curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
 fi
 
 # SDK VERSIONS
-JAVA_VERSION="17-open"
-GRADLE_VERSION="8.7"
-MAVEN_VERSION="3.9.6"
+JAVA_VERSION="latest"
+GRADLE_VERSION="latest"
+MAVEN_VERSION="latest"
 NODE_VERSION="latest"
 GO_VERSION="latest"
 

@@ -44,9 +44,9 @@ fi
 
 # Install SDKs
 eval "$(vfox activate bash)"
-JAVA_VERSION="17-open"
-GRADLE_VERSION="8.7"
-MAVEN_VERSION="3.9.6"
+JAVA_VERSION="latest"
+GRADLE_VERSION="latest"
+MAVEN_VERSION="latest"
 NODE_VERSION="latest"
 GO_VERSION="latest"
 
