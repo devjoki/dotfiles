@@ -5,7 +5,6 @@ local M = {}
 M.colorscheme_file = vim.fn.stdpath('data') .. '/colorscheme.txt'
 M.default_scheme = 'tokyonight-moon'
 M.wezterm_colorscheme_config = vim.fn.expand('~/.config/wezterm/colorscheme.lua')
-M.starship_config = vim.fn.expand('~/.config/starship.toml')
 
 -- Mapping between Neovim and WezTerm colorscheme names
 M.colorscheme_map = {
@@ -30,63 +29,6 @@ M.colorscheme_map = {
   ['gruvbox'] = 'GruvboxDark',
 }
 
--- Mapping between Neovim and Starship palette names
-M.starship_palette_map = {
-  ['tokyonight'] = 'tokyonight',
-  ['tokyonight-night'] = 'tokyonight_night',
-  ['tokyonight-storm'] = 'tokyonight_storm',
-  ['tokyonight-moon'] = 'tokyonight_moon',
-  ['tokyonight-day'] = 'tokyonight_day',
-  ['catppuccin'] = 'catppuccin_mocha',
-  ['catppuccin-mocha'] = 'catppuccin_mocha',
-  ['catppuccin-frappe'] = 'catppuccin_frappe',
-  ['catppuccin-macchiato'] = 'catppuccin_macchiato',
-  ['catppuccin-latte'] = 'catppuccin_latte',
-  ['kanagawa'] = 'kanagawa',
-  ['kanagawa-wave'] = 'kanagawa_wave',
-  ['kanagawa-dragon'] = 'kanagawa_dragon',
-  ['kanagawa-lotus'] = 'kanagawa_lotus',
-  ['rose-pine'] = 'rose_pine',
-  ['rose-pine-main'] = 'rose_pine',
-  ['rose-pine-moon'] = 'rose_pine_moon',
-  ['rose-pine-dawn'] = 'rose_pine_dawn',
-  ['gruvbox'] = 'gruvbox',
-}
-
--- Function to update Starship palette
-function M.update_starship_palette(scheme)
-  -- Check if colorscheme has a Starship mapping
-  local starship_palette = M.starship_palette_map[scheme]
-  if not starship_palette then
-    return false
-  end
-
-  -- Read the current Starship config
-  local file = io.open(M.starship_config, 'r')
-  if not file then
-    return false
-  end
-
-  local content = file:read('*all')
-  file:close()
-
-  -- Replace the palette line in starship.toml
-  local new_content = content:gsub(
-    "(palette%s*=%s*')[^']*(')",
-    '%1' .. starship_palette .. '%2'
-  )
-
-  -- Write back the updated config
-  file = io.open(M.starship_config, 'w')
-  if not file then
-    return false
-  end
-
-  file:write(new_content)
-  file:close()
-
-  return true
-end
 
 -- Function to update WezTerm colorscheme
 function M.update_wezterm_colorscheme(scheme)
@@ -138,20 +80,11 @@ function M.save_colorscheme(scheme)
     return
   end
 
-  -- Update WezTerm and Starship configs
+  -- Update WezTerm config
   local wezterm_updated = M.update_wezterm_colorscheme(scheme)
-  local starship_updated = M.update_starship_palette(scheme)
 
-  local sync_status = {}
   if wezterm_updated then
-    table.insert(sync_status, 'WezTerm')
-  end
-  if starship_updated then
-    table.insert(sync_status, 'Starship')
-  end
-
-  if #sync_status > 0 then
-    vim.notify('Saved colorscheme: ' .. scheme .. ' (synced to ' .. table.concat(sync_status, ', ') .. ')', vim.log.levels.INFO)
+    vim.notify('Saved colorscheme: ' .. scheme .. ' (synced to WezTerm)', vim.log.levels.INFO)
   else
     vim.notify('Saved colorscheme: ' .. scheme .. ' (sync failed)', vim.log.levels.WARN)
   end
