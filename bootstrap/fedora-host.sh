@@ -60,6 +60,12 @@ if ! command -v wezterm &> /dev/null; then
     sudo dnf install -y wezterm
 fi
 
+# Install zoxide
+if ! command -v zoxide &> /dev/null; then
+    echo "Installing zoxide..."
+    curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
+fi
+
 # Create config properties file
 touch "$HOME/.zsh_config.properties"
 
