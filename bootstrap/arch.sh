@@ -54,11 +54,13 @@ JAVA_VERSION="17-open"
 GRADLE_VERSION="8.7"
 MAVEN_VERSION="3.9.6"
 NODE_VERSION="latest"
+GO_VERSION="latest"
 
 [ ! -x "$(command -v java)" ] && vfox add java && vfox install "java@$JAVA_VERSION" && vfox use -g java
 [ ! -x "$(command -v mvn)" ] && vfox add maven && vfox install "maven@$MAVEN_VERSION" && vfox use -g maven
 [ ! -x "$(command -v gradle)" ] && vfox add gradle && vfox install "gradle@$GRADLE_VERSION" && vfox use -g gradle
 [ ! -x "$(command -v node)" ] && vfox add nodejs && vfox install "nodejs@$NODE_VERSION" && vfox use -g nodejs
+[ ! -x "$(command -v go)" ] && vfox add golang && vfox install "golang@$GO_VERSION" && vfox use -g golang
 
 sudo pacman -S --noconfirm texlive-most zathura
 

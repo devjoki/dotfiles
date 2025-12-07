@@ -44,7 +44,15 @@ sudo dnf install -y \
     curl \
     wget \
     unzip \
-    which
+    which \
+    zsh \
+    util-linux-user
+
+# Change default shell to zsh
+if [[ "$SHELL" != "$(which zsh)" ]]; then
+    echo "Changing default shell to zsh..."
+    chsh -s "$(which zsh)"
+fi
 
 # Install Homebrew (useful for some development tools)
 if ! command -v brew &> /dev/null; then
@@ -96,6 +104,7 @@ JAVA_VERSION="17-open"
 GRADLE_VERSION="8.7"
 MAVEN_VERSION="3.9.6"
 NODE_VERSION="latest"
+GO_VERSION="latest"
 
 echo "Installing SDKs via vfox..."
 
@@ -129,6 +138,14 @@ if ! command -v node &> /dev/null; then
     vfox add nodejs
     vfox install "nodejs@$NODE_VERSION"
     vfox use -g nodejs
+fi
+
+# Install Go
+if ! command -v go &> /dev/null; then
+    echo "Installing Go $GO_VERSION..."
+    vfox add golang
+    vfox install "golang@$GO_VERSION"
+    vfox use -g golang
 fi
 
 # Optional: Install Python development tools

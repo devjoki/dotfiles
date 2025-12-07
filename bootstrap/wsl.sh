@@ -77,6 +77,7 @@ JAVA_VERSION="17-open"
 GRADLE_VERSION="8.7"
 MAVEN_VERSION="3.9.6"
 NODE_VERSION="latest"
+GO_VERSION="latest"
 
 echo "Installing SDKs via vfox..."
 
@@ -94,6 +95,10 @@ fi
 
 if ! command -v node &> /dev/null; then
 	vfox add nodejs && vfox install "nodejs@$NODE_VERSION" && vfox use -g nodejs
+fi
+
+if ! command -v go &> /dev/null; then
+	vfox add golang && vfox install "golang@$GO_VERSION" && vfox use -g golang
 fi
 
 # Install LaTeX
