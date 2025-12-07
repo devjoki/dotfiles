@@ -1,9 +1,14 @@
 #!/bin/bash
 # Common symlink creation logic used by all platform bootstrap scripts
 
+# ZSH config based on ZSH_CONFIG variable (similar to NVIM_CONFIG)
+# ZSH_CONFIG should be set by the calling bootstrap script to either "zsh-full" or "zsh-slim"
+# Default to zsh-full if not set
+ZSH_CONFIG=${ZSH_CONFIG:-"zsh-full"}
+
 # Link .zshenv first (it defines ZDOTDIR)
-if [ -f "$SCRIPT_DIR/zsh/.zshenv" ]; then
-	create_symlink "$SCRIPT_DIR/zsh/.zshenv" "$HOME/.zshenv" --override
+if [ -f "$SCRIPT_DIR/$ZSH_CONFIG/.zshenv" ]; then
+	create_symlink "$SCRIPT_DIR/$ZSH_CONFIG/.zshenv" "$HOME/.zshenv" --override
 elif [ -f "$SCRIPT_DIR/zshenv" ]; then
 	create_symlink "$SCRIPT_DIR/zshenv" "$HOME/.zshenv" --override
 fi
@@ -17,20 +22,19 @@ fi
 # If ZDOTDIR is set, use it; otherwise use HOME
 ZSHRC_DIR="${ZDOTDIR:-$HOME}"
 
-if [ -f "$SCRIPT_DIR/zsh/.zshrc" ]; then
-	create_symlink "$SCRIPT_DIR/zsh/.zshrc" "$ZSHRC_DIR/.zshrc" --override
-elif [ -f "$SCRIPT_DIR/zshrc" ]; then
-	create_symlink "$SCRIPT_DIR/zshrc" "$ZSHRC_DIR/.zshrc" --override
+# Link zsh config directory to ~/.config/zsh
+if [ -d "$SCRIPT_DIR/$ZSH_CONFIG" ] && [ "$SCRIPT_DIR/$ZSH_CONFIG" != "$HOME/.config/zsh" ]; then
+	echo "Linking $ZSH_CONFIG to ~/.config/zsh"
+	create_symlink "$SCRIPT_DIR/$ZSH_CONFIG" "$HOME/.config/zsh" --override
+else
+	echo "Zsh config already in place at $HOME/.config/zsh"
 fi
 
-# Link zsh aliases file
-if [ -f "$SCRIPT_DIR/zsh/aliases" ]; then
-	create_symlink "$SCRIPT_DIR/zsh/aliases" "$ZSHRC_DIR/aliases" --override
-fi
-
-# Link zsh_extensions directory
-if [ -d "$SCRIPT_DIR/zsh/zsh_extensions" ]; then
-	create_symlink "$SCRIPT_DIR/zsh/zsh_extensions" "$ZSHRC_DIR/zsh_extensions" --override
+# Always link zsh-shared (required by both zsh-full and zsh-slim)
+if [ -d "$SCRIPT_DIR/zsh-shared" ] && [ "$SCRIPT_DIR/zsh-shared" != "$HOME/.config/zsh-shared" ]; then
+	create_symlink "$SCRIPT_DIR/zsh-shared" "$HOME/.config/zsh-shared" --override
+else
+	echo "Zsh-shared already in place at $HOME/.config/zsh-shared"
 fi
 
 # Link utils directory to ~/.config/utils

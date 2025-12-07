@@ -6,12 +6,12 @@ export EZA_CONFIG_DIR="$HOME/.config/eza"
 eval "$(starship init zsh)"
 eval "$(vfox activate zsh)"
 autoload -U compinit; compinit
-source "$HOME/.config/zsh/zsh_extensions/fzf-tab/fzf-tab.plugin.zsh"
+source "$HOME/.config/zsh-shared/zsh_extensions/fzf-tab/fzf-tab.plugin.zsh"
 eval "$(zoxide init zsh --cmd cd)"
 # Additinal config that should not be sourceControlled
-source_if_exists "$HOME/.config/zsh/zsh_extensions/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+source_if_exists "$HOME/.config/zsh-shared/zsh_extensions/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 source_if_exists "$HOME/.cargo/env"
-source_if_exists "$HOME/.config/zsh/work/aliases.sh"
+source_if_exists "$HOME/.config/zsh-shared/work/aliases.sh"
 # History
 setopt share_history
 setopt hist_expire_dups_first

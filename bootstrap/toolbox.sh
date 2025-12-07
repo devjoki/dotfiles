@@ -135,13 +135,14 @@ if choice "Install container tools (podman, docker-compose)?"; then
     sudo dnf install -y podman podman-compose
 fi
 
-# Setup Neovim config (full version with LSPs)
-echo "Setting up Neovim configuration..."
+# Setup configurations
+echo "Setting up configurations..."
 # Save the parent directory as SCRIPT_DIR for common-symlinks.sh
 SCRIPT_DIR="$SCRIPT_DIR/.."
 
-# Use full nvim config for toolbox (with LSP support)
+# Use full configs for toolbox (with LSP support and dev tools)
 export NVIM_CONFIG="nvim-full"
+export ZSH_CONFIG="zsh-full"
 source "$SCRIPT_DIR/bootstrap/common-symlinks.sh"
 
 echo ""
