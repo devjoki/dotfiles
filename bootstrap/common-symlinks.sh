@@ -56,3 +56,33 @@ fi
 if [ -f "$SCRIPT_DIR/wezterm.lua" ]; then
 	create_symlink "$SCRIPT_DIR/wezterm.lua" "$HOME/.wezterm.lua" --override
 fi
+
+# Link git config
+if [ -d "$SCRIPT_DIR/git" ]; then
+	create_symlink "$SCRIPT_DIR/git" "$HOME/.config/git" --override
+fi
+
+# Link lazygit config
+if [ -d "$SCRIPT_DIR/lazygit" ]; then
+	create_symlink "$SCRIPT_DIR/lazygit" "$HOME/.config/lazygit" --override
+fi
+
+# Link eza config
+if [ -d "$SCRIPT_DIR/eza" ]; then
+	create_symlink "$SCRIPT_DIR/eza" "$HOME/.config/eza" --override
+fi
+
+# Link ghostty config
+if [ -d "$SCRIPT_DIR/ghostty" ]; then
+	create_symlink "$SCRIPT_DIR/ghostty" "$HOME/.config/ghostty" --override
+fi
+
+# Link gtk-2.0 config (Linux only)
+if [ -d "$SCRIPT_DIR/gtk-2.0" ]; then
+	create_symlink "$SCRIPT_DIR/gtk-2.0" "$HOME/.config/gtk-2.0" --override
+fi
+
+# Link ideavim config directory
+if [ -d "$SCRIPT_DIR/ideavim" ]; then
+	create_symlink "$SCRIPT_DIR/ideavim" "$HOME/.config/ideavim" --override
+fi

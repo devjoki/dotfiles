@@ -135,4 +135,10 @@ touch "$HOME/.zsh_config.properties"
 export NVIM_CONFIG="nvim-full"
 source "$SCRIPT_DIR/bootstrap/common-symlinks.sh"
 
+# Link hammerspoon config (macOS only)
+if [ -d "$SCRIPT_DIR/hammerspoon" ]; then
+	echo "Linking Hammerspoon config..."
+	create_symlink "$SCRIPT_DIR/hammerspoon" "$HOME/.hammerspoon" --override
+fi
+
 echo "=== macOS Bootstrap Complete ==="
