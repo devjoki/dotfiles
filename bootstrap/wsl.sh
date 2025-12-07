@@ -60,6 +60,8 @@ install_app_if_not_exists "nvim" "brew install neovim"
 install_app_if_not_exists "starship" "brew install starship"
 install_app_if_not_exists "vfox" "brew install vfox"
 install_app_if_not_exists "lazygit" "brew install jesseduffield/lazygit/lazygit"
+install_app_if_not_exists "eza" "brew install eza"
+install_app_if_not_exists "zoxide" "brew install zoxide"
 
 # Install Rust
 if ! command -v rustup &> /dev/null; then
