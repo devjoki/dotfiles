@@ -115,8 +115,10 @@ fi
 # Install fzf (fuzzy finder - required by fzf-tab)
 if ! command -v fzf &> /dev/null; then
     echo "Installing fzf..."
-    git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-    ~/.fzf/install --key-bindings --completion --no-update-rc
+    if [ ! -d ~/.fzf ]; then
+        git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+    fi
+    ~/.fzf/install --bin
 fi
 
 # SDK VERSIONS
