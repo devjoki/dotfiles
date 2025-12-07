@@ -30,6 +30,11 @@ else
 	echo "Zsh config already in place at $HOME/.config/zsh"
 fi
 
+# Link .zshrc to home directory (zsh looks for it there)
+if [ -f "$SCRIPT_DIR/$ZSH_CONFIG/.zshrc" ]; then
+	create_symlink "$SCRIPT_DIR/$ZSH_CONFIG/.zshrc" "$ZSHRC_DIR/.zshrc" --override
+fi
+
 # Always link zsh-shared (required by both zsh-full and zsh-slim)
 if [ -d "$SCRIPT_DIR/zsh-shared" ] && [ "$SCRIPT_DIR/zsh-shared" != "$HOME/.config/zsh-shared" ]; then
 	create_symlink "$SCRIPT_DIR/zsh-shared" "$HOME/.config/zsh-shared" --override
