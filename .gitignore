@@ -1,3 +1,7 @@
 github-copilot/*
 jgit/*
 work/*
+op/
+
+# Zsh completion cache (auto-generated)
+zsh/.zcompdump*

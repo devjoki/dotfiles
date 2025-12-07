@@ -7,8 +7,28 @@ end
 
 vim.o.sessionoptions = 'blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions'
 vim.opt.rtp:prepend(vim.env.LAZY or lazypath)
+
+-- Load shared plugins first
+local config_home = vim.fn.stdpath("config")
+
+-- Resolve symlinks to get the real path, then get parent directory
+local config_real = vim.loop.fs_realpath(config_home) or config_home
+local config_parent = vim.fn.fnamemodify(config_real, ":h")
+
+local shared_plugins_init = config_parent .. "/nvim-shared/plugins-init.lua"
+local shared_plugins_spec = {}
+
+if vim.fn.filereadable(shared_plugins_init) == 1 then
+  local shared_plugins = dofile(shared_plugins_init)
+  -- Add shared plugins to spec
+  for _, plugin in ipairs(shared_plugins) do
+    table.insert(shared_plugins_spec, plugin)
+  end
+end
+
+-- Setup lazy with both shared and full plugins
 require('lazy').setup({
-  spec = {
+  spec = vim.tbl_extend("force", shared_plugins_spec, {
     { import = 'plugins.ai' },
     { import = 'plugins.completion' },
     { import = 'plugins.editing' },
@@ -16,7 +36,7 @@ require('lazy').setup({
     { import = 'plugins.navigation' },
     { import = 'plugins.source-control' },
     { import = 'plugins.ui' },
-  },
+  }),
   -- defaults = {
   --   -- By default, only LazyVim plugins will be lazy-loaded. Your custom plugins will load during startup.
   --   -- If you know what you're doing, you can set this to `true` to have all your custom plugins lazy-loaded by default.

@@ -1,81 +1,162 @@
 #!/bin/bash
-execute_if_dir_not_exists() {
-	TARGET="$1"
-	CMD="$2"
-	if [ -e "$TARGET" ]; then
-		echo "$TARGET already exists!"
-	else
-		echo "Creating directory: '$TARGET'..."
-		eval "$CMD" 2>&1 | sed "s/^/    /"
-	fi
-}
-install_oh_my_zsh() {
-	execute_if_dir_not_exists "$HOME/.oh-my-zsh" "curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | bash"
-	execute_if_dir_not_exists "$HOME/.oh-my-zsh/custom/plugins/zsh-vi-mode" "git clone https://github.com/jeffreytse/zsh-vi-mode $HOME/.oh-my-zsh/custom/plugins/zsh-vi-mode"
-}
 
-WSL="$1"
-if [[ -n "$WSL" && "$WSL" != "--not-wsl" && "$WSL" != "-nw" ]]; then
-	>&2 echo "Invalid flag it must be either empty or \"-nw\"/\"--no-wsl\""
-	return 1
-fi
+# Interactive Bootstrap Script
+# Supports: macOS, WSL, Ubuntu/Debian, Fedora, Arch Linux
+
 set -e
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 #shellcheck disable=SC1091
-source "$SCRIPT_DIR/utils.sh"
-set -e
-if [[ -z "$WSL" ]]; then
-	sudo bash "$SCRIPT_DIR/run_util_function.sh" "append_unique_lines_to_file" "/etc/environment" "export WAYLAND_DISPLAY=wayland-0" "export DISPLAY=:0"
-	# required for vimtex neovim plugin
-	create_symlink "$SCRIPT_DIR/wsl_bash_sysinit" "$HOME/.wsl_bash_sysinit" --override
-	# nvim clipboard paste doesn't work withouyt this for me
-	install_package_if_not_exists "xclip"
+source "$SCRIPT_DIR/utils/utils.sh"
+
+echo "======================================"
+echo "  Development Environment Bootstrap"
+echo "======================================"
+echo ""
+
+# Detect OS
+detect_os_detailed() {
+	if [[ "$OSTYPE" == "darwin"* ]]; then
+		echo "macos"
+	elif grep -qi microsoft /proc/version 2>/dev/null; then
+		echo "wsl"
+	elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+		if [ -f /etc/arch-release ]; then
+			echo "arch"
+		elif [ -f /etc/fedora-release ]; then
+			echo "fedora"
+		elif [ -f /etc/debian_version ]; then
+			if grep -qi ubuntu /etc/os-release 2>/dev/null; then
+				echo "ubuntu"
+			else
+				echo "debian"
+			fi
+		else
+			echo "linux"
+		fi
+	else
+		echo "unknown"
+	fi
+}
+
+DETECTED_OS=$(detect_os_detailed)
+echo "Detected OS: $DETECTED_OS"
+echo ""
+
+# Show menu for platform selection
+echo "Please select your platform:"
+echo "  1) macOS"
+echo "  2) Windows WSL (Ubuntu/Debian)"
+echo "  3) Ubuntu/Debian (native)"
+echo "  4) Fedora (native)"
+echo "  5) Fedora (with toolbox setup)"
+echo "  6) Arch Linux"
+echo "  7) Auto-detect and run"
+echo "  0) Exit"
+echo ""
+
+read -p "Enter your choice [0-7]: " CHOICE
+
+case $CHOICE in
+	1)
+		PLATFORM="macos"
+		;;
+	2)
+		PLATFORM="wsl"
+		;;
+	3)
+		PLATFORM="ubuntu"
+		;;
+	4)
+		PLATFORM="fedora"
+		;;
+	5)
+		PLATFORM="fedora-toolbox"
+		;;
+	6)
+		PLATFORM="arch"
+		;;
+	7)
+		PLATFORM="$DETECTED_OS"
+		echo "Using auto-detected platform: $PLATFORM"
+		;;
+	0)
+		echo "Exiting..."
+		exit 0
+		;;
+	*)
+		echo_err "Invalid choice!"
+		exit 1
+		;;
+esac
+
+echo ""
+echo "Selected platform: $PLATFORM"
+echo ""
+
+# Confirmation
+if ! choice "Continue with $PLATFORM bootstrap?"; then
+	echo "Aborted."
+	exit 0
 fi
-sudo apt-get update
-sudo apt-get upgrade
-install_package_if_not_exists "build-essential"
-sudo curl -fsSL "https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh" | bash
-readarray -t LINES_TO_EXPORT <<< "$(eval /home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-sudo bash "$SCRIPT_DIR/run_util_function.sh" "append_unique_lines_to_file" "/etc/profile" "${LINES_TO_EXPORT[@]}"
-for EXPORT in "${LINES_TO_EXPORT[@]}"; do
-	eval "$EXPORT"
-done
-#install dependencies
-install_package_if_not_exists "zsh"
-chsh -s "$(which zsh)"
-touch "$HOME/.zsh_config.properties"
-install_package_if_not_exists "unzip"
-install_oh_my_zsh
-install_app_if_not_exists "nvim" "brew install nvim"
-install_app_if_not_exists "tmux" "brew install tmux"
-install_app_if_not_exists "starship" "brew install starship"
-install_app_if_not_exists "vfox" "brew install vfox" 
-install_app_if_not_exists "rustup" "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y" "rustup install stable"
-install_app_if_not_exists "lazygit" "brew install jesseduffield/lazygit/lazygit"
-eval "$(vfox activate bash)"
-# SDK VERSIONS
-JAVA_VERSION="17-open"
-GRADLE_VERSION="8.7"
-MAVEN_VERSION="3.9.6"
-NODE_VERSION=latest
-# INSTALL SDKs
-install_app_if_not_exists "java" "vfox add java" "vfox install java@$JAVA_VERSION" "vfox use -g java"
-install_app_if_not_exists "mvn" "vfox add maven" "vfox install maven@$MAVEN_VERSION" "vfox use -g maven"
-install_app_if_not_exists "gradle" "vfox add gradle" "vfox install gradle@$GRADLE_VERSION" "vfox use -g gradle"
-install_app_if_not_exists "node" "vfox add nodejs" "vfox install nodejs@$NODE_VERSION" "vfox use -g nodejs"
-install_package_if_not_exists "latexmk"
-install_package_if_not_exists "zathura"
 
-#create symbolic links
-create_symlink "$SCRIPT_DIR/tmux.conf" "$HOME/.tmux.conf" --override
-create_symlink "$SCRIPT_DIR/zshrc" "$HOME/.zshrc" --override
-create_symlink "$SCRIPT_DIR/zshenv" "$HOME/.zshenv" --override
-create_symlink "$SCRIPT_DIR/utils.sh" "$HOME/.scripts/utils.sh" --override
-create_symlink "$SCRIPT_DIR/run_util_function.sh" "$HOME/.scripts/run_util_function.sh" --override
-create_symlink "$SCRIPT_DIR/ideavimrc" "$HOME/.ideavimrc" --override
-create_symlink "$SCRIPT_DIR/nvim-joco" "$HOME/.config/nvim" --override
-create_symlink "$SCRIPT_DIR/nvim-lazy" "$HOME/.config/nvim-lazy" --override
-create_symlink "$SCRIPT_DIR/starship.toml" "$HOME/.config/starship.toml" --override
-create_symlink "$SCRIPT_DIR/wezterm.lua" "$HOME/.wezterm.lua" --override
+echo ""
+echo "Starting bootstrap for $PLATFORM..."
+echo ""
 
-git clone https://github.com/tmux-plugins/tpm.git ~/.tmux/plugins/tpm
+# Platform-specific bootstrapping
+case $PLATFORM in
+	macos)
+		source "$SCRIPT_DIR/bootstrap/macos.sh"
+		;;
+	wsl)
+		source "$SCRIPT_DIR/bootstrap/wsl.sh"
+		;;
+	ubuntu|debian)
+		source "$SCRIPT_DIR/bootstrap/ubuntu.sh"
+		;;
+	fedora)
+		source "$SCRIPT_DIR/bootstrap/fedora.sh"
+		;;
+	fedora-toolbox)
+		echo "Fedora Toolbox setup has two parts:"
+		echo "  1. Host setup (GUI apps)"
+		echo "  2. Toolbox setup (dev tools)"
+		echo ""
+		if choice "Setup host first?"; then
+			source "$SCRIPT_DIR/bootstrap/fedora-host.sh"
+			echo ""
+			echo "Host setup complete!"
+			echo ""
+		fi
+		if choice "Setup toolbox now?"; then
+			# Check if in toolbox
+			if [ -z "$TOOLBOX_PATH" ]; then
+				echo_warn "You need to be inside a toolbox to run toolbox bootstrap"
+				echo "Run these commands:"
+				echo "  toolbox create dev"
+				echo "  toolbox enter dev"
+				echo "  cd ~/.config && ./bootstrap.sh"
+			else
+				source "$SCRIPT_DIR/bootstrap/toolbox.sh"
+			fi
+		fi
+		;;
+	arch)
+		source "$SCRIPT_DIR/bootstrap/arch.sh"
+		;;
+	*)
+		echo_err "Unsupported platform: $PLATFORM"
+		exit 1
+		;;
+esac
+
+echo ""
+echo "======================================"
+echo "  Bootstrap Complete!"
+echo "======================================"
+echo ""
+echo "You may need to:"
+echo "  - Log out and back in for shell changes"
+echo "  - Restart your terminal"
+echo "  - Run 'source ~/.zshrc' to reload your shell"
+echo ""

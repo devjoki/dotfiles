@@ -153,12 +153,70 @@ install_package_if_not_exists() {
 		echo_err "PKG_NAME must be provided!"
 		return 1
 	fi
-	local PKG_OK=$(dpkg-query -W --showformat='${Status}\n' "$PKG_NAME" 2>/dev/null | grep "install ok installed" || echo "" )
-	if [ "" = "$PKG_OK" ]; then
-		echo "Installing '$PKG_NAME'"
-		sudo apt-get install "$PKG_NAME"
+
+	# Detect OS for package management
+	local OS_TYPE
+	local PKG_MANAGER
+	if [[ "$OSTYPE" == "darwin"* ]]; then
+		OS_TYPE="macos"
+		PKG_MANAGER="brew"
+	elif grep -qi microsoft /proc/version 2>/dev/null; then
+		OS_TYPE="wsl"
+		PKG_MANAGER="apt"
+	elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+		# Detect Linux distro
+		if [ -f /etc/arch-release ]; then
+			OS_TYPE="arch"
+			PKG_MANAGER="pacman"
+		elif [ -f /etc/fedora-release ]; then
+			OS_TYPE="fedora"
+			PKG_MANAGER="dnf"
+		elif [ -f /etc/debian_version ]; then
+			OS_TYPE="debian"
+			PKG_MANAGER="apt"
+		else
+			OS_TYPE="linux"
+			PKG_MANAGER="apt"  # default to apt
+		fi
 	else
-		echo_warn "$PKG_NAME is already installed!"
+		echo_err "Unsupported OS type: $OSTYPE"
+		return 1
+	fi
+
+	# Check if package is installed based on package manager
+	if [[ "$PKG_MANAGER" == "brew" ]]; then
+		# On macOS, use brew
+		if brew list "$PKG_NAME" &>/dev/null; then
+			echo_warn "$PKG_NAME is already installed!"
+		else
+			echo "Installing '$PKG_NAME' via Homebrew"
+			brew install "$PKG_NAME"
+		fi
+	elif [[ "$PKG_MANAGER" == "pacman" ]]; then
+		# On Arch Linux, use pacman
+		if pacman -Qi "$PKG_NAME" &>/dev/null; then
+			echo_warn "$PKG_NAME is already installed!"
+		else
+			echo "Installing '$PKG_NAME' via pacman"
+			sudo pacman -S --noconfirm "$PKG_NAME"
+		fi
+	elif [[ "$PKG_MANAGER" == "dnf" ]]; then
+		# On Fedora, use dnf
+		if rpm -q "$PKG_NAME" &>/dev/null; then
+			echo_warn "$PKG_NAME is already installed!"
+		else
+			echo "Installing '$PKG_NAME' via dnf"
+			sudo dnf install -y "$PKG_NAME"
+		fi
+	else
+		# On Debian/Ubuntu/WSL, use apt
+		local PKG_OK=$(dpkg-query -W --showformat='${Status}\n' "$PKG_NAME" 2>/dev/null | grep "install ok installed" || echo "" )
+		if [ "" = "$PKG_OK" ]; then
+			echo "Installing '$PKG_NAME' via apt"
+			sudo apt-get install -y "$PKG_NAME"
+		else
+			echo_warn "$PKG_NAME is already installed!"
+		fi
 	fi
 }
 

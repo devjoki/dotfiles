@@ -1,9 +1,0 @@
-tags
-test.sh
-.luarc.json
-nvim
-
-spell/
-lua/work.lua
-lua/config/work_keymaps.lua
-# lazy-lock.json
