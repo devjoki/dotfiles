@@ -32,7 +32,12 @@ if ! command -v brew &> /dev/null; then
 fi
 
 # Dev tools
-sudo dnf group install -y "Development Tools" || sudo dnf groupinstall -y "Development Tools"
+# dnf5 uses "group install", older dnf uses "groupinstall"
+if dnf --version 2>&1 | grep -q "dnf5"; then
+    sudo dnf group install -y "Development Tools"
+else
+    sudo dnf groupinstall -y "Development Tools"
+fi
 install_app_if_not_exists "vfox" "brew install vfox"
 install_app_if_not_exists "lazygit" "brew install jesseduffield/lazygit/lazygit"
 

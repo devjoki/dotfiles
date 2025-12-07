@@ -28,7 +28,12 @@ sudo dnf update -y
 
 # Install build tools
 echo "Installing build tools..."
-sudo dnf group install -y "Development Tools" || sudo dnf groupinstall -y "Development Tools"
+# dnf5 uses "group install", older dnf uses "groupinstall"
+if dnf --version 2>&1 | grep -q "dnf5"; then
+    sudo dnf group install -y "Development Tools"
+else
+    sudo dnf groupinstall -y "Development Tools"
+fi
 sudo dnf install -y \
     gcc \
     gcc-c++ \
