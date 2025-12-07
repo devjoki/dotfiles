@@ -1,18 +1,44 @@
 #!/bin/bash
 # Common symlink creation logic used by all platform bootstrap scripts
 
-if [ -f "$SCRIPT_DIR/zsh/.zshrc" ]; then
-	create_symlink "$SCRIPT_DIR/zsh/.zshrc" "$HOME/.zshrc" --override
-elif [ -f "$SCRIPT_DIR/zshrc" ]; then
-	create_symlink "$SCRIPT_DIR/zshrc" "$HOME/.zshrc" --override
-fi
-
+# Link .zshenv first (it defines ZDOTDIR)
 if [ -f "$SCRIPT_DIR/zsh/.zshenv" ]; then
 	create_symlink "$SCRIPT_DIR/zsh/.zshenv" "$HOME/.zshenv" --override
 elif [ -f "$SCRIPT_DIR/zshenv" ]; then
 	create_symlink "$SCRIPT_DIR/zshenv" "$HOME/.zshenv" --override
 fi
 
+# Determine where .zshrc should be linked based on ZDOTDIR
+# Source .zshenv to get ZDOTDIR if it exists
+if [ -f "$HOME/.zshenv" ]; then
+	source "$HOME/.zshenv"
+fi
+
+# If ZDOTDIR is set, use it; otherwise use HOME
+ZSHRC_DIR="${ZDOTDIR:-$HOME}"
+
+if [ -f "$SCRIPT_DIR/zsh/.zshrc" ]; then
+	create_symlink "$SCRIPT_DIR/zsh/.zshrc" "$ZSHRC_DIR/.zshrc" --override
+elif [ -f "$SCRIPT_DIR/zshrc" ]; then
+	create_symlink "$SCRIPT_DIR/zshrc" "$ZSHRC_DIR/.zshrc" --override
+fi
+
+# Link zsh aliases file
+if [ -f "$SCRIPT_DIR/zsh/aliases" ]; then
+	create_symlink "$SCRIPT_DIR/zsh/aliases" "$ZSHRC_DIR/aliases" --override
+fi
+
+# Link zsh_extensions directory
+if [ -d "$SCRIPT_DIR/zsh/zsh_extensions" ]; then
+	create_symlink "$SCRIPT_DIR/zsh/zsh_extensions" "$ZSHRC_DIR/zsh_extensions" --override
+fi
+
+# Link utils directory to ~/.config/utils
+if [ -d "$SCRIPT_DIR/utils" ]; then
+	create_symlink "$SCRIPT_DIR/utils" "$HOME/.config/utils" --override
+fi
+
+# Also create symlinks in ~/.scripts for backwards compatibility
 create_symlink "$SCRIPT_DIR/utils/utils.sh" "$HOME/.scripts/utils.sh" --override
 create_symlink "$SCRIPT_DIR/utils/run_util_function.sh" "$HOME/.scripts/run_util_function.sh" --override
 
