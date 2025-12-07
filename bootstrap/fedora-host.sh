@@ -50,7 +50,7 @@ fi
 # Install neovim
 if ! command -v nvim &> /dev/null; then
     echo "Installing neovim..."
-    sudo dnf install -y neovim python3-neovim
+    sudo dnf install -y neovim
 fi
 
 # Install wezterm

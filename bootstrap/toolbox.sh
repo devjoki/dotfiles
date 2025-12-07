@@ -59,7 +59,7 @@ fi
 # Install Neovim (full version with LSP support)
 if ! command -v nvim &> /dev/null; then
     echo "Installing Neovim..."
-    sudo dnf install -y neovim python3-neovim
+    sudo dnf install -y neovim
 fi
 
 # Install version manager (vfox)

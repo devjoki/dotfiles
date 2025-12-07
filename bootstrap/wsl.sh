@@ -5,7 +5,7 @@ echo "=== Windows WSL Bootstrap ==="
 
 # WSL-specific configurations
 echo "Configuring WSL-specific settings..."
-sudo bash "$SCRIPT_DIR/utils/run_util_function.sh" "append_unique_lines_to_file" "/etc/environment" "export WAYLAND_DISPLAY=wayland-0" "export DISPLAY=:0"
+sudo bash "$SCRIPT_DIR/../utils/run_util_function.sh" "append_unique_lines_to_file" "/etc/environment" "export WAYLAND_DISPLAY=wayland-0" "export DISPLAY=:0"
 
 # Required for vimtex neovim plugin
 if [ -f "$SCRIPT_DIR/wsl_bash_sysinit" ]; then
@@ -47,7 +47,7 @@ if ! command -v brew &> /dev/null; then
 	if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
 		eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 		readarray -t LINES_TO_EXPORT <<< "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-		sudo bash "$SCRIPT_DIR/utils/run_util_function.sh" "append_unique_lines_to_file" "/etc/profile" "${LINES_TO_EXPORT[@]}"
+		sudo bash "$SCRIPT_DIR/../utils/run_util_function.sh" "append_unique_lines_to_file" "/etc/profile" "${LINES_TO_EXPORT[@]}"
 	fi
 else
 	echo "Homebrew is already installed"
