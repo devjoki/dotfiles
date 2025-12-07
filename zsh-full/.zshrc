@@ -9,6 +9,7 @@ export EZA_CONFIG_DIR="$HOME/.config/eza"
 # Initialize tools (check if they exist first to avoid errors)
 command -v starship &> /dev/null && eval "$(starship init zsh)"
 command -v vfox &> /dev/null && eval "$(vfox activate zsh)"
+command -v mcfly &> /dev/null && eval "$(mcfly init zsh)"
 autoload -U compinit; compinit
 source "$HOME/.config/zsh-shared/zsh_extensions/fzf-tab/fzf-tab.plugin.zsh"
 command -v zoxide &> /dev/null && eval "$(zoxide init zsh --cmd cd)"

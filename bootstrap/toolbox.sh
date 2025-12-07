@@ -106,6 +106,12 @@ if ! command -v eza &> /dev/null; then
     rm /tmp/eza.tar.gz
 fi
 
+# Install mcfly (smart command history)
+if ! command -v mcfly &> /dev/null; then
+    echo "Installing mcfly..."
+    curl -LSfs https://raw.githubusercontent.com/cantino/mcfly/master/ci/install.sh | sh -s -- --git cantino/mcfly
+fi
+
 # SDK VERSIONS
 JAVA_VERSION="latest"
 GRADLE_VERSION="latest"
