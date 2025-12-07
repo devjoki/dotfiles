@@ -137,7 +137,8 @@ fi
 
 # Setup Neovim config (full version with LSPs)
 echo "Setting up Neovim configuration..."
-SCRIPT_DIR="$HOME/.config"
+# Save the parent directory as SCRIPT_DIR for common-symlinks.sh
+SCRIPT_DIR="$SCRIPT_DIR/.."
 
 # Use full nvim config for toolbox (with LSP support)
 export NVIM_CONFIG="nvim-full"

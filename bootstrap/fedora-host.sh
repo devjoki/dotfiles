@@ -66,38 +66,40 @@ touch "$HOME/.zsh_config.properties"
 # Create symbolic links for configurations
 echo "Creating symbolic links..."
 
-if [ -f "$SCRIPT_DIR/zsh/.zshrc" ]; then
-    create_symlink "$SCRIPT_DIR/zsh/.zshrc" "$HOME/.zshrc" --override
-elif [ -f "$SCRIPT_DIR/zsh/.zshrc" ]; then
-    create_symlink "$SCRIPT_DIR/zsh/.zshrc" "$HOME/.zshrc" --override
+if [ -f "$SCRIPT_DIR/../zsh/.zshrc" ]; then
+    create_symlink "$SCRIPT_DIR/../zsh/.zshrc" "$HOME/.zshrc" --override
+elif [ -f "$SCRIPT_DIR/../zsh/.zshrc" ]; then
+    create_symlink "$SCRIPT_DIR/../zsh/.zshrc" "$HOME/.zshrc" --override
 fi
 
-if [ -f "$SCRIPT_DIR/zsh/.zshenv" ]; then
-    create_symlink "$SCRIPT_DIR/zsh/.zshenv" "$HOME/.zshenv" --override
-elif [ -f "$SCRIPT_DIR/zshenv" ]; then
-    create_symlink "$SCRIPT_DIR/zshenv" "$HOME/.zshenv" --override
+if [ -f "$SCRIPT_DIR/../zsh/.zshenv" ]; then
+    create_symlink "$SCRIPT_DIR/../zsh/.zshenv" "$HOME/.zshenv" --override
+elif [ -f "$SCRIPT_DIR/../zshenv" ]; then
+    create_symlink "$SCRIPT_DIR/../zshenv" "$HOME/.zshenv" --override
 fi
 
-create_symlink "$SCRIPT_DIR/utils/utils.sh" "$HOME/.scripts/utils.sh" --override
-create_symlink "$SCRIPT_DIR/utils/run_util_function.sh" "$HOME/.scripts/run_util_function.sh" --override
+create_symlink "$SCRIPT_DIR/../utils/utils.sh" "$HOME/.scripts/utils.sh" --override
+create_symlink "$SCRIPT_DIR/../utils/run_util_function.sh" "$HOME/.scripts/run_util_function.sh" --override
 
-if [ -f "$SCRIPT_DIR/ideavimrc" ]; then
-    create_symlink "$SCRIPT_DIR/ideavimrc" "$HOME/.ideavimrc" --override
+if [ -f "$SCRIPT_DIR/../ideavimrc" ]; then
+    create_symlink "$SCRIPT_DIR/../ideavimrc" "$HOME/.ideavimrc" --override
 fi
 
 # Use nvim-slim for Fedora host (lightweight, no LSP)
 export NVIM_CONFIG="nvim-slim"
 
 # Create symlinks (using common logic)
-if [ -f "$SCRIPT_DIR/starship.toml" ]; then
-    create_symlink "$SCRIPT_DIR/starship.toml" "$HOME/.config/starship.toml" --override
+if [ -f "$SCRIPT_DIR/../starship.toml" ]; then
+    create_symlink "$SCRIPT_DIR/../starship.toml" "$HOME/.config/starship.toml" --override
 fi
 
-if [ -d "$SCRIPT_DIR/wezterm" ]; then
-    create_symlink "$SCRIPT_DIR/wezterm" "$HOME/.config/wezterm" --override
+if [ -d "$SCRIPT_DIR/../wezterm" ]; then
+    create_symlink "$SCRIPT_DIR/../wezterm" "$HOME/.config/wezterm" --override
 fi
 
 # Link nvim config and nvim-shared
+# Save the parent directory as SCRIPT_DIR for common-symlinks.sh
+SCRIPT_DIR="$SCRIPT_DIR/.."
 source "$SCRIPT_DIR/bootstrap/common-symlinks.sh"
 
 if [ -f "$SCRIPT_DIR/wezterm.lua" ]; then
