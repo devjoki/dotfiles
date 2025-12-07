@@ -27,16 +27,24 @@ if vim.fn.filereadable(shared_plugins_init) == 1 then
 end
 
 -- Setup lazy with both shared and full plugins
+-- Merge shared plugins with full-specific plugins
+local full_spec = {
+  { import = 'plugins.ai' },
+  { import = 'plugins.completion' },
+  { import = 'plugins.editing' },
+  { import = 'plugins.lsp' },
+  { import = 'plugins.navigation' },
+  { import = 'plugins.source-control' },
+  { import = 'plugins.ui' },
+}
+
+-- Combine shared and full specs
+for _, plugin in ipairs(shared_plugins_spec) do
+  table.insert(full_spec, plugin)
+end
+
 require('lazy').setup({
-  spec = vim.tbl_extend("force", shared_plugins_spec, {
-    { import = 'plugins.ai' },
-    { import = 'plugins.completion' },
-    { import = 'plugins.editing' },
-    { import = 'plugins.lsp' },
-    { import = 'plugins.navigation' },
-    { import = 'plugins.source-control' },
-    { import = 'plugins.ui' },
-  }),
+  spec = full_spec,
   -- defaults = {
   --   -- By default, only LazyVim plugins will be lazy-loaded. Your custom plugins will load during startup.
   --   -- If you know what you're doing, you can set this to `true` to have all your custom plugins lazy-loaded by default.

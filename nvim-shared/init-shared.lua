@@ -26,7 +26,8 @@ end
 source_shared("options.lua")
 source_shared("keymaps.lua")
 source_shared("autocmds.lua")
-source_shared("colorscheme.lua")
+-- colorscheme.lua commented out - using plugin-based colorschemes instead
+-- source_shared("colorscheme.lua")
 
 -- Return module for optional direct require
 return {

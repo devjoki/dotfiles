@@ -24,21 +24,38 @@ end
 
 -- Load shared plugins (colorschemes, mini, treesitter, which-key, window navigation)
 local shared_plugins_init = config_parent .. "/nvim-shared/plugins-init.lua"
+local shared_plugins_spec = {}
+
 if vim.fn.filereadable(shared_plugins_init) == 1 then
   local shared_plugins = dofile(shared_plugins_init)
-
-  -- Setup lazy.nvim with shared plugins
-  require('lazy').setup(shared_plugins, {
-    ui = {
-      icons = vim.g.have_nerd_font and {} or {
-        cmd = '⌘', config = '🛠', event = '📅', ft = '📂',
-        init = '⚙', keys = '🗝', plugin = '🔌', runtime = '💻',
-        require = '🌙', source = '📄', start = '🚀', task = '📌',
-        lazy = '💤 ',
-      },
-    },
-  })
+  -- Add shared plugins to spec
+  for _, plugin in ipairs(shared_plugins) do
+    table.insert(shared_plugins_spec, plugin)
+  end
 end
+
+-- Setup lazy.nvim with both shared and slim-specific plugins
+-- Merge shared plugins with slim-specific plugins
+local slim_spec = {
+  { import = 'plugins' },  -- Load slim-specific plugins from lua/plugins/
+}
+
+-- Combine shared and slim specs
+for _, plugin in ipairs(shared_plugins_spec) do
+  table.insert(slim_spec, plugin)
+end
+
+require('lazy').setup({
+  spec = slim_spec,
+  ui = {
+    icons = vim.g.have_nerd_font and {} or {
+      cmd = '⌘', config = '🛠', event = '📅', ft = '📂',
+      init = '⚙', keys = '🗝', plugin = '🔌', runtime = '💻',
+      require = '🌙', source = '📄', start = '🚀', task = '📌',
+      lazy = '💤 ',
+    },
+  },
+})
 
 -- Show a message that we're in slim mode
 vim.api.nvim_create_autocmd("VimEnter", {

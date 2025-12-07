@@ -1,104 +1,19 @@
 -- Shared colorscheme plugins (used by both nvim-full and nvim-slim)
 -- Includes Telescope-based colorscheme picker
 
+-- Add nvim-shared to package path before requiring modules
+local config_home = vim.fn.stdpath("config")
+local config_real = vim.loop.fs_realpath(config_home) or config_home
+local config_parent = vim.fn.fnamemodify(config_real, ":h")
+local shared_path = config_parent .. "/nvim-shared"
+package.path = shared_path .. "/?.lua;" .. package.path
+
 return {
-  -- Colorscheme picker with Telescope and persistence
-  {
-    'folke/which-key.nvim',
-    optional = true,
-    keys = {
-      {
-        '<leader>uc',
-        function()
-          local persist = require('colorscheme-persist')
-
-          -- Define allowed colorschemes (only our custom themes)
-          local allowed_colorschemes = {
-            'tokyonight',
-            'tokyonight-night',
-            'tokyonight-storm',
-            'tokyonight-moon',
-            'tokyonight-day',
-            'catppuccin',
-            'catppuccin-mocha',
-            'catppuccin-frappe',
-            'catppuccin-macchiato',
-            'catppuccin-latte',
-            'kanagawa',
-            'kanagawa-wave',
-            'kanagawa-dragon',
-            'kanagawa-lotus',
-            'rose-pine',
-            'rose-pine-main',
-            'rose-pine-moon',
-            'rose-pine-dawn',
-            'gruvbox',
-          }
-
-          -- Create a lookup table for faster checks
-          local allowed_set = {}
-          for _, name in ipairs(allowed_colorschemes) do
-            allowed_set[name] = true
-          end
-
-          require('telescope.builtin').colorscheme({
-            enable_preview = true,
-            attach_mappings = function(prompt_bufnr, map)
-              local actions = require('telescope.actions')
-              local action_state = require('telescope.actions.state')
-              local finders = require('telescope.finders')
-
-              -- Filter colorschemes to only show allowed ones
-              local current_picker = action_state.get_current_picker(prompt_bufnr)
-              local all_colorschemes = vim.fn.getcompletion('', 'color')
-              local filtered_colorschemes = {}
-
-              for _, colorscheme in ipairs(all_colorschemes) do
-                if allowed_set[colorscheme] then
-                  table.insert(filtered_colorschemes, colorscheme)
-                end
-              end
-
-              -- Replace the finder with filtered results
-              current_picker:refresh(finders.new_table({
-                results = filtered_colorschemes,
-              }), { reset_prompt = false })
-
-              -- Save colorscheme on Enter
-              actions.select_default:replace(function()
-                local selection = action_state.get_selected_entry()
-                actions.close(prompt_bufnr)
-                if selection then
-                  vim.schedule(function()
-                    vim.cmd.colorscheme(selection.value)
-                    persist.save_colorscheme(selection.value)
-                  end)
-                end
-              end)
-
-              return true
-            end,
-          })
-        end,
-        desc = '[U]I [C]olorscheme (switch)',
-      },
-    },
-    init = function()
-      -- Apply saved colorscheme on VimEnter (after all plugins are loaded)
-      vim.api.nvim_create_autocmd('VimEnter', {
-        callback = function()
-          local persist = require('colorscheme-persist')
-          persist.apply_saved_scheme()
-        end,
-        once = true,
-      })
-    end,
-  },
-
   -- Tokyo Night
   {
     'folke/tokyonight.nvim',
     priority = 1000,
+    lazy = false,
     opts = {
       style = 'night',
       transparent = false,
@@ -110,6 +25,20 @@ return {
         variables = {},
       },
     },
+    config = function(_, opts)
+      require('tokyonight').setup(opts)
+
+      -- Apply saved colorscheme after all colorscheme plugins are loaded
+      vim.api.nvim_create_autocmd('VimEnter', {
+        callback = function()
+          local persist = require('colorscheme-persist')
+          persist.apply_saved_scheme()
+          -- Setup autocmd to save colorscheme when changed
+          persist.setup_autocmd()
+        end,
+        once = true,
+      })
+    end,
   },
 
   -- Catppuccin
@@ -117,6 +46,7 @@ return {
     'catppuccin/nvim',
     name = 'catppuccin',
     priority = 1000,
+    lazy = false,
     opts = {
       flavour = 'mocha',
       transparent_background = false,
@@ -132,6 +62,7 @@ return {
   {
     'rebelot/kanagawa.nvim',
     priority = 1000,
+    lazy = false,
     opts = {
       compile = false,
       undercurl = true,
@@ -151,6 +82,7 @@ return {
     'rose-pine/neovim',
     name = 'rose-pine',
     priority = 1000,
+    lazy = false,
     opts = {
       variant = 'main',
       dark_variant = 'main',
@@ -164,6 +96,7 @@ return {
   {
     'ellisonleao/gruvbox.nvim',
     priority = 1000,
+    lazy = false,
     opts = {
       terminal_colors = true,
       undercurl = true,
