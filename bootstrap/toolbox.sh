@@ -7,7 +7,7 @@
 set -e
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 #shellcheck disable=SC1091
-source "$SCRIPT_DIR/utils/utils.sh"
+source "$SCRIPT_DIR/../utils/utils.sh"
 set -e
 
 echo "=== Toolbox Development Environment Bootstrap ==="
