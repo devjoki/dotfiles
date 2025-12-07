@@ -29,8 +29,9 @@ sudo dnf update -y
 # Install build tools
 echo "Installing build tools..."
 # dnf5 uses "group install", older dnf uses "groupinstall"
+# In dnf5, the group name changed from "Development Tools" to "development-tools" or "C Development Tools and Libraries"
 if dnf --version 2>&1 | grep -q "dnf5"; then
-    sudo dnf group install -y "Development Tools"
+    sudo dnf group install -y "development-tools" || sudo dnf install -y @development-tools || sudo dnf install -y gcc gcc-c++ make
 else
     sudo dnf groupinstall -y "Development Tools"
 fi
