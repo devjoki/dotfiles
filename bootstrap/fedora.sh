@@ -36,20 +36,21 @@ if ! command -v starship &> /dev/null; then
     curl -sS https://starship.rs/install.sh | sh -s -- -y
 fi
 
-# Install neovim (latest version from COPR)
-echo "Setting up Neovim from COPR..."
-sudo dnf copr enable agriffis/neovim-nightly -y
-
+# Install neovim (latest AppImage from GitHub)
 if ! command -v nvim &> /dev/null; then
-    echo "Installing neovim (latest from COPR)..."
-    sudo dnf install -y neovim
+    echo "Installing neovim (latest AppImage from GitHub)..."
+    curl -LO https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage
+    chmod u+x nvim.appimage
+    sudo mv nvim.appimage /usr/local/bin/nvim
 else
     # Check if version is old and upgrade
     NVIM_VERSION=$(nvim --version | head -n1 | grep -oP 'v\K[0-9]+\.[0-9]+')
     if [[ $(echo "$NVIM_VERSION < 0.11" | bc -l) -eq 1 ]]; then
         echo "Neovim $NVIM_VERSION detected (older than 0.11)"
-        echo "Upgrading to latest Neovim from COPR..."
-        sudo dnf upgrade neovim --allowerasing -y
+        echo "Upgrading to latest Neovim AppImage from GitHub..."
+        curl -LO https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage
+        chmod u+x nvim.appimage
+        sudo mv nvim.appimage /usr/local/bin/nvim
     else
         echo "Neovim $NVIM_VERSION is up to date"
     fi
