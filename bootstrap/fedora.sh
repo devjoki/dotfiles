@@ -154,7 +154,7 @@ fi
 
 # Create symbolic links
 echo "Creating symbolic links..."
-source "$SCRIPT_DIR/bootstrap/common-symlinks.sh"
+source "$SCRIPT_DIR/common-symlinks.sh"
 
 echo ""
 echo "=== Fedora Bootstrap Complete ==="
