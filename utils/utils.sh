@@ -291,7 +291,7 @@ nvim_at() {
 	local CREATE_DIR_IF_NOT_EXISTS="$2"
 	if [[ -n "$CREATE_DIR_IF_NOT_EXISTS" && "$CREATE_DIR_IF_NOT_EXISTS" != "--create-dir" && "$CREATE_DIR_IF_NOT_EXISTS" != "-cd" ]]; then
 		echo_err "Invalid second argument: '$CREATE_DIR_IF_NOT_EXISTS'... It must be either empty or \"-cd\"/\"--create-dir\""
-		return 
+		return
 	elif [ -e "$TARGET_DIR" ] || ( [ -n "$CREATE_DIR_IF_NOT_EXISTS" ] || choice "Directory does not exist at $TARGET_DIR. Do you want to create it?"); then
 		create_dir_if_not_exists "$TARGET_DIR"
 
@@ -304,4 +304,34 @@ nvim_at() {
 			echo "Cannot cd to $CURRENT_DIR..."
 		fi
         fi
+}
+
+# Select slim or full configuration
+# Sets NVIM_CONFIG and ZSH_CONFIG environment variables
+select_config_type() {
+	echo ""
+	echo "Select configuration type:"
+	echo "  1) Slim (lightweight, minimal tools)"
+	echo "  2) Full (complete dev environment with LSP, SDKs)"
+	echo ""
+	read -p "Enter your choice [1-2]: " CONFIG_CHOICE
+
+	case $CONFIG_CHOICE in
+		1)
+			export NVIM_CONFIG="nvim-slim"
+			export ZSH_CONFIG="zsh-slim"
+			echo "Using slim configuration"
+			;;
+		2)
+			export NVIM_CONFIG="nvim-full"
+			export ZSH_CONFIG="zsh-full"
+			echo "Using full configuration"
+			;;
+		*)
+			echo_err "Invalid choice! Defaulting to full configuration."
+			export NVIM_CONFIG="nvim-full"
+			export ZSH_CONFIG="zsh-full"
+			;;
+	esac
+	echo ""
 }

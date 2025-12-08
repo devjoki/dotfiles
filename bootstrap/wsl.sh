@@ -114,8 +114,10 @@ touch "$HOME/.zsh_config.properties"
 
 # Create symbolic links
 echo "Creating symbolic links..."
-export NVIM_CONFIG="nvim-full"
-export ZSH_CONFIG="zsh-full"
+
+# Ask user to select slim or full configuration
+select_config_type
+
 source "$SCRIPT_DIR/bootstrap/common-symlinks.sh"
 
 echo "=== WSL Bootstrap Complete ==="

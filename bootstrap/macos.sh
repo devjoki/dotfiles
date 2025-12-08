@@ -144,9 +144,9 @@ touch "$HOME/.zsh_config.properties"
 echo "Creating symbolic links..."
 touch "$HOME/.zsh_config.properties"
 
-# Use full configs for macOS (default)
-export NVIM_CONFIG="nvim-full"
-export ZSH_CONFIG="zsh-full"
+# Ask user to select slim or full configuration
+select_config_type
+
 source "$SCRIPT_DIR/bootstrap/common-symlinks.sh"
 
 # Link hammerspoon config (macOS only)

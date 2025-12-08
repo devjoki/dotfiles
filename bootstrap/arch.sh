@@ -69,8 +69,10 @@ GO_VERSION="latest"
 sudo pacman -S --noconfirm texlive-most zathura
 
 touch "$HOME/.zsh_config.properties"
-export NVIM_CONFIG="nvim-full"
-export ZSH_CONFIG="zsh-full"
+
+# Ask user to select slim or full configuration
+select_config_type
+
 source "$SCRIPT_DIR/bootstrap/common-symlinks.sh"
 
 echo "=== Arch Bootstrap Complete ==="
