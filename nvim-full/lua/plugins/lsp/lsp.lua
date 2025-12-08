@@ -11,15 +11,12 @@ return {
     config = function(_, opts)
       require('mason').setup(opts)
 
-      -- Ensure Java tools are installed (jdtls is special, not managed by mason-lspconfig)
+      -- Ensure jdtls is installed (jdtls is special, not managed by mason-lspconfig)
+      -- Note: java-debug-adapter and java-test are handled by mason-nvim-dap in debug.lua
       local mr = require('mason-registry')
-      local java_tools = { 'jdtls', 'java-debug-adapter', 'java-test' }
-
-      for _, tool in ipairs(java_tools) do
-        local p = mr.get_package(tool)
-        if not p:is_installed() then
-          p:install()
-        end
+      local p = mr.get_package('jdtls')
+      if not p:is_installed() then
+        p:install()
       end
     end,
   },
