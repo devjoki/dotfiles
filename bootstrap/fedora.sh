@@ -36,10 +36,21 @@ if ! command -v starship &> /dev/null; then
     curl -sS https://starship.rs/install.sh | sh -s -- -y
 fi
 
-# Install neovim
+# Install neovim (latest version from COPR)
 if ! command -v nvim &> /dev/null; then
-    echo "Installing neovim..."
+    echo "Installing neovim (latest from COPR)..."
+    sudo dnf copr enable agriffis/neovim-nightly -y
     sudo dnf install -y neovim
+else
+    # Check if version is old and offer to upgrade
+    NVIM_VERSION=$(nvim --version | head -n1 | grep -oP 'v\K[0-9]+\.[0-9]+')
+    if [[ $(echo "$NVIM_VERSION < 0.11" | bc -l) -eq 1 ]]; then
+        echo "Neovim $NVIM_VERSION detected (older than 0.11)"
+        if choice "Upgrade to latest Neovim from COPR?"; then
+            sudo dnf copr enable agriffis/neovim-nightly -y
+            sudo dnf upgrade neovim --allowerasing -y
+        fi
+    fi
 fi
 
 # Install wezterm
