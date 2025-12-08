@@ -38,32 +38,70 @@ if [[ "$SHELL" != "$(which zsh)" ]]; then
 	chsh -s "$(which zsh)"
 fi
 
-# Install Homebrew for Linux
-if ! command -v brew &> /dev/null; then
-	echo "Installing Homebrew..."
-	NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-	# Configure Homebrew environment
-	if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
-		eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-		readarray -t LINES_TO_EXPORT <<< "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-		sudo bash "$SCRIPT_DIR/../utils/run_util_function.sh" "append_unique_lines_to_file" "/etc/profile" "${LINES_TO_EXPORT[@]}"
-	fi
-else
-	echo "Homebrew is already installed"
-	eval "$(brew shellenv)"
-fi
-
 # Install development tools
 echo "Installing development tools..."
-install_app_if_not_exists "nvim" "brew install neovim"
-install_app_if_not_exists "starship" "brew install starship"
-install_app_if_not_exists "vfox" "brew install vfox"
-install_app_if_not_exists "lazygit" "brew install jesseduffield/lazygit/lazygit"
-install_app_if_not_exists "eza" "brew install eza"
-install_app_if_not_exists "zoxide" "brew install zoxide"
-install_app_if_not_exists "mcfly" "brew install mcfly"
-install_app_if_not_exists "fzf" "brew install fzf"
+
+# Install neovim
+if ! command -v nvim &> /dev/null; then
+	echo "Installing neovim..."
+	sudo add-apt-repository ppa:neovim-ppa/unstable -y
+	sudo apt-get update
+	sudo apt-get install -y neovim
+fi
+
+# Install starship
+if ! command -v starship &> /dev/null; then
+	echo "Installing starship..."
+	curl -sS https://starship.rs/install.sh | sh -s -- -y
+fi
+
+# Install vfox
+if ! command -v vfox &> /dev/null; then
+	echo "Installing vfox..."
+	curl -sSL https://raw.githubusercontent.com/version-fox/vfox/main/install.sh | bash
+fi
+
+# Install lazygit
+if ! command -v lazygit &> /dev/null; then
+	echo "Installing lazygit..."
+	LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
+	curl -Lo /tmp/lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz"
+	tar xf /tmp/lazygit.tar.gz -C /tmp lazygit
+	sudo install /tmp/lazygit /usr/local/bin
+	rm /tmp/lazygit.tar.gz /tmp/lazygit
+fi
+
+# Install eza
+if ! command -v eza &> /dev/null; then
+	echo "Installing eza..."
+	sudo mkdir -p /etc/apt/keyrings
+	wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
+	echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
+	sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list
+	sudo apt-get update
+	sudo apt-get install -y eza
+fi
+
+# Install zoxide
+if ! command -v zoxide &> /dev/null; then
+	echo "Installing zoxide..."
+	curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
+fi
+
+# Install mcfly
+if ! command -v mcfly &> /dev/null; then
+	echo "Installing mcfly..."
+	curl -LSfs https://raw.githubusercontent.com/cantino/mcfly/master/ci/install.sh | sh -s -- --git cantino/mcfly
+fi
+
+# Install fzf
+if ! command -v fzf &> /dev/null; then
+	echo "Installing fzf..."
+	if [ ! -d ~/.fzf ]; then
+		git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+	fi
+	~/.fzf/install --bin
+fi
 
 # Install Rust
 if ! command -v rustup &> /dev/null; then

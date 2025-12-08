@@ -37,19 +37,21 @@ if ! command -v starship &> /dev/null; then
 fi
 
 # Install neovim (latest version from COPR)
+echo "Setting up Neovim from COPR..."
+sudo dnf copr enable agriffis/neovim-nightly -y
+
 if ! command -v nvim &> /dev/null; then
     echo "Installing neovim (latest from COPR)..."
-    sudo dnf copr enable agriffis/neovim-nightly -y
     sudo dnf install -y neovim
 else
-    # Check if version is old and offer to upgrade
+    # Check if version is old and upgrade
     NVIM_VERSION=$(nvim --version | head -n1 | grep -oP 'v\K[0-9]+\.[0-9]+')
     if [[ $(echo "$NVIM_VERSION < 0.11" | bc -l) -eq 1 ]]; then
         echo "Neovim $NVIM_VERSION detected (older than 0.11)"
-        if choice "Upgrade to latest Neovim from COPR?"; then
-            sudo dnf copr enable agriffis/neovim-nightly -y
-            sudo dnf upgrade neovim --allowerasing -y
-        fi
+        echo "Upgrading to latest Neovim from COPR..."
+        sudo dnf upgrade neovim --allowerasing -y
+    else
+        echo "Neovim $NVIM_VERSION is up to date"
     fi
 fi
 
@@ -116,19 +118,10 @@ if [ "$NVIM_CONFIG" = "nvim-full" ]; then
         sudo dnf groupinstall -y "Development Tools"
     fi
 
-    # Install Homebrew
-    if ! command -v brew &> /dev/null; then
-        echo "Installing Homebrew..."
-        NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-    else
-        eval "$(brew shellenv)"
-    fi
-
-    # Install vfox
+    # Install vfox (version manager)
     if ! command -v vfox &> /dev/null; then
         echo "Installing vfox..."
-        brew install vfox
+        curl -sSL https://raw.githubusercontent.com/version-fox/vfox/main/install.sh | bash
     fi
 
     # Install Rust

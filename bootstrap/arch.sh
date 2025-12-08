@@ -31,19 +31,51 @@ if ! command -v wezterm &> /dev/null; then
 	fi
 fi
 
-# Install Homebrew
-if ! command -v brew &> /dev/null; then
-	NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-	eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+# Install vfox
+if ! command -v vfox &> /dev/null; then
+	echo "Installing vfox..."
+	curl -sSL https://raw.githubusercontent.com/version-fox/vfox/main/install.sh | bash
 fi
 
-# Dev tools
-install_app_if_not_exists "vfox" "brew install vfox"
-install_app_if_not_exists "lazygit" "brew install jesseduffield/lazygit/lazygit"
-install_app_if_not_exists "eza" "brew install eza"
-install_app_if_not_exists "zoxide" "brew install zoxide"
-install_app_if_not_exists "mcfly" "brew install mcfly"
-install_app_if_not_exists "fzf" "brew install fzf"
+# Install lazygit
+if ! command -v lazygit &> /dev/null; then
+	echo "Installing lazygit..."
+	LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
+	curl -Lo /tmp/lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz"
+	tar xf /tmp/lazygit.tar.gz -C /tmp lazygit
+	sudo install /tmp/lazygit /usr/local/bin
+	rm /tmp/lazygit.tar.gz /tmp/lazygit
+fi
+
+# Install eza
+if ! command -v eza &> /dev/null; then
+	echo "Installing eza..."
+	EZA_VERSION=$(curl -s https://api.github.com/repos/eza-community/eza/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
+	curl -Lo /tmp/eza.tar.gz "https://github.com/eza-community/eza/releases/download/${EZA_VERSION}/eza_x86_64-unknown-linux-gnu.tar.gz"
+	sudo tar -xzf /tmp/eza.tar.gz -C /usr/local/bin
+	rm /tmp/eza.tar.gz
+fi
+
+# Install zoxide
+if ! command -v zoxide &> /dev/null; then
+	echo "Installing zoxide..."
+	curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
+fi
+
+# Install mcfly
+if ! command -v mcfly &> /dev/null; then
+	echo "Installing mcfly..."
+	curl -LSfs https://raw.githubusercontent.com/cantino/mcfly/master/ci/install.sh | sh -s -- --git cantino/mcfly
+fi
+
+# Install fzf
+if ! command -v fzf &> /dev/null; then
+	echo "Installing fzf..."
+	if [ ! -d ~/.fzf ]; then
+		git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+	fi
+	~/.fzf/install --bin
+fi
 
 # Rust
 if ! command -v rustup &> /dev/null; then

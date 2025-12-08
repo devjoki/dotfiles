@@ -43,6 +43,8 @@ return {
         -- NOTE: do NOT put jdtls here – jdtls is special (we start it per-project below)
       },
       automatic_installation = true,
+      -- Disable automatic setup since we're using vim.lsp.config directly
+      handlers = {},
     },
   },
 
@@ -152,15 +154,25 @@ return {
         zls = {},
       }
 
-      -- Setup LSP servers using lspconfig (compatible with Neovim 0.10+)
-      local lspconfig = require('lspconfig')
+      -- Use the new vim.lsp.config API (Neovim 0.11+)
       for name, opts in pairs(servers) do
-        lspconfig[name].setup {
+        vim.lsp.config[name] = vim.tbl_extend('force', vim.lsp.config[name] or {}, {
           capabilities = capabilities,
           on_attach = on_attach,
           settings = opts.settings,
-        }
+        })
+        vim.lsp.enable(name)
       end
+
+      -- Completely disable automatic jdtls startup (we handle it in ftplugin/java.lua)
+      -- We must set cmd to a function that does nothing to prevent auto-start
+      vim.lsp.config.jdtls = {
+        cmd = function()
+          return nil
+        end,
+        filetypes = {},
+        autostart = false,
+      }
     end,
   },
 }
