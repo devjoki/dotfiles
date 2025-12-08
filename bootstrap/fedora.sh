@@ -39,21 +39,31 @@ fi
 # Install neovim (latest release from GitHub)
 if ! command -v nvim &> /dev/null; then
     echo "Installing neovim (latest from GitHub)..."
-    curl -LO https://github.com/neovim/neovim/releases/download/nightly/nvim-linux64.tar.gz
-    sudo tar -C /opt -xzf nvim-linux64.tar.gz
-    sudo ln -sf /opt/nvim-linux64/bin/nvim /usr/local/bin/nvim
-    rm nvim-linux64.tar.gz
+    curl -fsSL -o /tmp/nvim-linux64.tar.gz https://github.com/neovim/neovim/releases/download/nightly/nvim-linux64.tar.gz
+    if [ $? -eq 0 ] && [ -f /tmp/nvim-linux64.tar.gz ]; then
+        sudo tar -C /opt -xzf /tmp/nvim-linux64.tar.gz
+        sudo ln -sf /opt/nvim-linux64/bin/nvim /usr/local/bin/nvim
+        rm /tmp/nvim-linux64.tar.gz
+        echo "Neovim installed successfully"
+    else
+        echo_err "Failed to download Neovim"
+    fi
 else
     # Check if version is old and upgrade
     NVIM_VERSION=$(nvim --version | head -n1 | grep -oP 'v\K[0-9]+\.[0-9]+')
     if [[ $(echo "$NVIM_VERSION < 0.11" | bc -l) -eq 1 ]]; then
         echo "Neovim $NVIM_VERSION detected (older than 0.11)"
         echo "Upgrading to latest Neovim from GitHub..."
-        curl -LO https://github.com/neovim/neovim/releases/download/nightly/nvim-linux64.tar.gz
-        sudo rm -rf /opt/nvim-linux64
-        sudo tar -C /opt -xzf nvim-linux64.tar.gz
-        sudo ln -sf /opt/nvim-linux64/bin/nvim /usr/local/bin/nvim
-        rm nvim-linux64.tar.gz
+        curl -fsSL -o /tmp/nvim-linux64.tar.gz https://github.com/neovim/neovim/releases/download/nightly/nvim-linux64.tar.gz
+        if [ $? -eq 0 ] && [ -f /tmp/nvim-linux64.tar.gz ]; then
+            sudo rm -rf /opt/nvim-linux64
+            sudo tar -C /opt -xzf /tmp/nvim-linux64.tar.gz
+            sudo ln -sf /opt/nvim-linux64/bin/nvim /usr/local/bin/nvim
+            rm /tmp/nvim-linux64.tar.gz
+            echo "Neovim upgraded successfully"
+        else
+            echo_err "Failed to download Neovim"
+        fi
     else
         echo "Neovim $NVIM_VERSION is up to date"
     fi
