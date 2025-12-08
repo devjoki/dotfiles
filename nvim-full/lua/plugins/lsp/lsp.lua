@@ -43,9 +43,14 @@ return {
         -- NOTE: do NOT put jdtls here – jdtls is special (we start it per-project below)
       },
       automatic_installation = true,
-      -- Disable automatic setup since we're using vim.lsp.config directly
+      -- Disable automatic setup since we're using manual setup below
       handlers = {},
     },
+    config = function(_, opts)
+      require('mason-lspconfig').setup(opts)
+      -- Explicitly disable automatic_enable to prevent the error
+      require('mason-lspconfig.features.automatic_enable').disable()
+    end,
   },
 
   -- Core LSP
