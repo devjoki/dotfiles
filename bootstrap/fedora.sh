@@ -40,11 +40,12 @@ fi
 if ! command -v nvim &> /dev/null; then
     echo "Installing neovim (latest stable from GitHub)..."
     NVIM_VERSION=$(curl -s https://api.github.com/repos/neovim/neovim/releases/latest | grep -oP '"tag_name": "\K[^"]+')
-    curl -fsSL -o /tmp/nvim-linux64.tar.gz "https://github.com/neovim/neovim/releases/download/${NVIM_VERSION}/nvim-linux64.tar.gz"
-    if [ $? -eq 0 ] && [ -f /tmp/nvim-linux64.tar.gz ]; then
-        sudo tar -C /opt -xzf /tmp/nvim-linux64.tar.gz
-        sudo ln -sf /opt/nvim-linux64/bin/nvim /usr/local/bin/nvim
-        rm /tmp/nvim-linux64.tar.gz
+    curl -fsSL -o /tmp/nvim.tar.gz "https://github.com/neovim/neovim/releases/download/${NVIM_VERSION}/nvim-linux-x86_64.tar.gz"
+    if [ $? -eq 0 ] && [ -f /tmp/nvim.tar.gz ]; then
+        sudo rm -rf /opt/nvim-linux-x86_64
+        sudo tar -C /opt -xzf /tmp/nvim.tar.gz
+        sudo ln -sf /opt/nvim-linux-x86_64/bin/nvim /usr/local/bin/nvim
+        rm /tmp/nvim.tar.gz
         echo "Neovim ${NVIM_VERSION} installed successfully"
     else
         echo_err "Failed to download Neovim"
@@ -56,12 +57,12 @@ else
         echo "Neovim $CURRENT_VERSION detected (older than 0.11)"
         echo "Upgrading to latest Neovim from GitHub..."
         NVIM_VERSION=$(curl -s https://api.github.com/repos/neovim/neovim/releases/latest | grep -oP '"tag_name": "\K[^"]+')
-        curl -fsSL -o /tmp/nvim-linux64.tar.gz "https://github.com/neovim/neovim/releases/download/${NVIM_VERSION}/nvim-linux64.tar.gz"
-        if [ $? -eq 0 ] && [ -f /tmp/nvim-linux64.tar.gz ]; then
-            sudo rm -rf /opt/nvim-linux64
-            sudo tar -C /opt -xzf /tmp/nvim-linux64.tar.gz
-            sudo ln -sf /opt/nvim-linux64/bin/nvim /usr/local/bin/nvim
-            rm /tmp/nvim-linux64.tar.gz
+        curl -fsSL -o /tmp/nvim.tar.gz "https://github.com/neovim/neovim/releases/download/${NVIM_VERSION}/nvim-linux-x86_64.tar.gz"
+        if [ $? -eq 0 ] && [ -f /tmp/nvim.tar.gz ]; then
+            sudo rm -rf /opt/nvim-linux-x86_64
+            sudo tar -C /opt -xzf /tmp/nvim.tar.gz
+            sudo ln -sf /opt/nvim-linux-x86_64/bin/nvim /usr/local/bin/nvim
+            rm /tmp/nvim.tar.gz
             echo "Neovim ${NVIM_VERSION} upgraded successfully"
         else
             echo_err "Failed to download Neovim"
