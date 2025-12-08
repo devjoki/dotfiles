@@ -66,7 +66,10 @@ GO_VERSION="latest"
 [ ! -x "$(command -v node)" ] && vfox add nodejs && vfox install "nodejs@$NODE_VERSION" && vfox use -g nodejs
 [ ! -x "$(command -v go)" ] && vfox add golang && vfox install "golang@$GO_VERSION" && vfox use -g golang
 
-sudo pacman -S --noconfirm texlive-most zathura
+# Optional: Install LaTeX
+if choice "Install LaTeX (texlive-most and zathura)?"; then
+    sudo pacman -S --noconfirm texlive-most zathura
+fi
 
 touch "$HOME/.zsh_config.properties"
 

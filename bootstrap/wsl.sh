@@ -105,9 +105,11 @@ if ! command -v go &> /dev/null; then
 	vfox add golang && vfox install "golang@$GO_VERSION" && vfox use -g golang
 fi
 
-# Install LaTeX
-install_package_if_not_exists "latexmk"
-install_package_if_not_exists "zathura"
+# Optional: Install LaTeX
+if choice "Install LaTeX (latexmk and zathura)?"; then
+    install_package_if_not_exists "latexmk"
+    install_package_if_not_exists "zathura"
+fi
 
 # Create config properties file
 touch "$HOME/.zsh_config.properties"

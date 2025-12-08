@@ -60,8 +60,11 @@ GO_VERSION="latest"
 [ ! -x "$(command -v node)" ] && vfox add nodejs && vfox install "nodejs@$NODE_VERSION" && vfox use -g nodejs
 [ ! -x "$(command -v go)" ] && vfox add golang && vfox install "golang@$GO_VERSION" && vfox use -g golang
 
-install_package_if_not_exists "latexmk"
-install_package_if_not_exists "zathura"
+# Optional: Install LaTeX
+if choice "Install LaTeX (latexmk and zathura)?"; then
+    install_package_if_not_exists "latexmk"
+    install_package_if_not_exists "zathura"
+fi
 
 touch "$HOME/.zsh_config.properties"
 
