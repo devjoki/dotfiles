@@ -36,36 +36,38 @@ if ! command -v starship &> /dev/null; then
     curl -sS https://starship.rs/install.sh | sh -s -- -y
 fi
 
-# Install neovim (latest release from GitHub)
+# Install neovim (latest stable release from GitHub)
 if ! command -v nvim &> /dev/null; then
-    echo "Installing neovim (latest from GitHub)..."
-    curl -fsSL -o /tmp/nvim-linux64.tar.gz https://github.com/neovim/neovim/releases/download/nightly/nvim-linux64.tar.gz
+    echo "Installing neovim (latest stable from GitHub)..."
+    NVIM_VERSION=$(curl -s https://api.github.com/repos/neovim/neovim/releases/latest | grep -oP '"tag_name": "\K[^"]+')
+    curl -fsSL -o /tmp/nvim-linux64.tar.gz "https://github.com/neovim/neovim/releases/download/${NVIM_VERSION}/nvim-linux64.tar.gz"
     if [ $? -eq 0 ] && [ -f /tmp/nvim-linux64.tar.gz ]; then
         sudo tar -C /opt -xzf /tmp/nvim-linux64.tar.gz
         sudo ln -sf /opt/nvim-linux64/bin/nvim /usr/local/bin/nvim
         rm /tmp/nvim-linux64.tar.gz
-        echo "Neovim installed successfully"
+        echo "Neovim ${NVIM_VERSION} installed successfully"
     else
         echo_err "Failed to download Neovim"
     fi
 else
     # Check if version is old and upgrade
-    NVIM_VERSION=$(nvim --version | head -n1 | grep -oP 'v\K[0-9]+\.[0-9]+')
-    if [[ $(echo "$NVIM_VERSION < 0.11" | bc -l) -eq 1 ]]; then
-        echo "Neovim $NVIM_VERSION detected (older than 0.11)"
+    CURRENT_VERSION=$(nvim --version | head -n1 | grep -oP 'v\K[0-9]+\.[0-9]+')
+    if [[ $(echo "$CURRENT_VERSION < 0.11" | bc -l) -eq 1 ]]; then
+        echo "Neovim $CURRENT_VERSION detected (older than 0.11)"
         echo "Upgrading to latest Neovim from GitHub..."
-        curl -fsSL -o /tmp/nvim-linux64.tar.gz https://github.com/neovim/neovim/releases/download/nightly/nvim-linux64.tar.gz
+        NVIM_VERSION=$(curl -s https://api.github.com/repos/neovim/neovim/releases/latest | grep -oP '"tag_name": "\K[^"]+')
+        curl -fsSL -o /tmp/nvim-linux64.tar.gz "https://github.com/neovim/neovim/releases/download/${NVIM_VERSION}/nvim-linux64.tar.gz"
         if [ $? -eq 0 ] && [ -f /tmp/nvim-linux64.tar.gz ]; then
             sudo rm -rf /opt/nvim-linux64
             sudo tar -C /opt -xzf /tmp/nvim-linux64.tar.gz
             sudo ln -sf /opt/nvim-linux64/bin/nvim /usr/local/bin/nvim
             rm /tmp/nvim-linux64.tar.gz
-            echo "Neovim upgraded successfully"
+            echo "Neovim ${NVIM_VERSION} upgraded successfully"
         else
             echo_err "Failed to download Neovim"
         fi
     else
-        echo "Neovim $NVIM_VERSION is up to date"
+        echo "Neovim $CURRENT_VERSION is up to date"
     fi
 fi
 
