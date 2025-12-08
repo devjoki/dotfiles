@@ -4,11 +4,8 @@
 # Supports both host and container installations
 # Choose between slim (minimal) or full (complete dev environment) during setup
 
-set -e
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-#shellcheck disable=SC1091
-source "$SCRIPT_DIR/../utils/utils.sh"
-set -e
+# Note: This script inherits SCRIPT_DIR from bootstrap.sh
+# SCRIPT_DIR points to the dotfiles root directory
 
 echo "=== Fedora Bootstrap ==="
 echo ""
@@ -154,7 +151,7 @@ fi
 
 # Create symbolic links
 echo "Creating symbolic links..."
-source "$SCRIPT_DIR/common-symlinks.sh"
+source "$SCRIPT_DIR/bootstrap/common-symlinks.sh"
 
 echo ""
 echo "=== Fedora Bootstrap Complete ==="
