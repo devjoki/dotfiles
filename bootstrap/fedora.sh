@@ -36,21 +36,24 @@ if ! command -v starship &> /dev/null; then
     curl -sS https://starship.rs/install.sh | sh -s -- -y
 fi
 
-# Install neovim (latest AppImage from GitHub)
+# Install neovim (latest release from GitHub)
 if ! command -v nvim &> /dev/null; then
-    echo "Installing neovim (latest AppImage from GitHub)..."
-    curl -LO https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage
-    chmod u+x nvim.appimage
-    sudo mv nvim.appimage /usr/local/bin/nvim
+    echo "Installing neovim (latest from GitHub)..."
+    curl -LO https://github.com/neovim/neovim/releases/download/nightly/nvim-linux64.tar.gz
+    sudo tar -C /opt -xzf nvim-linux64.tar.gz
+    sudo ln -sf /opt/nvim-linux64/bin/nvim /usr/local/bin/nvim
+    rm nvim-linux64.tar.gz
 else
     # Check if version is old and upgrade
     NVIM_VERSION=$(nvim --version | head -n1 | grep -oP 'v\K[0-9]+\.[0-9]+')
     if [[ $(echo "$NVIM_VERSION < 0.11" | bc -l) -eq 1 ]]; then
         echo "Neovim $NVIM_VERSION detected (older than 0.11)"
-        echo "Upgrading to latest Neovim AppImage from GitHub..."
-        curl -LO https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage
-        chmod u+x nvim.appimage
-        sudo mv nvim.appimage /usr/local/bin/nvim
+        echo "Upgrading to latest Neovim from GitHub..."
+        curl -LO https://github.com/neovim/neovim/releases/download/nightly/nvim-linux64.tar.gz
+        sudo rm -rf /opt/nvim-linux64
+        sudo tar -C /opt -xzf nvim-linux64.tar.gz
+        sudo ln -sf /opt/nvim-linux64/bin/nvim /usr/local/bin/nvim
+        rm nvim-linux64.tar.gz
     else
         echo "Neovim $NVIM_VERSION is up to date"
     fi
