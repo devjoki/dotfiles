@@ -11,6 +11,11 @@ command -v starship &> /dev/null && eval "$(starship init zsh)"
 command -v vfox &> /dev/null && eval "$(vfox activate zsh)"
 command -v mcfly &> /dev/null && eval "$(mcfly init zsh)"
 autoload -U compinit; compinit
+
+# fzf-tab configuration (must be before loading the plugin)
+zstyle ':completion:*' menu no
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
+
 source "$HOME/.config/zsh-shared/zsh_extensions/fzf-tab/fzf-tab.plugin.zsh"
 command -v zoxide &> /dev/null && eval "$(zoxide init zsh --cmd cd)"
 # Additinal config that should not be sourceControlled
