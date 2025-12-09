@@ -14,9 +14,16 @@ return {
       -- Ensure jdtls is installed (jdtls is special, not managed by mason-lspconfig)
       -- Note: java-debug-adapter and java-test are handled by mason-nvim-dap in debug.lua
       local mr = require('mason-registry')
-      local p = mr.get_package('jdtls')
-      if not p:is_installed() then
-        p:install()
+
+      -- Wait for registry to be ready, then install jdtls if needed
+      if mr.is_installed('jdtls') then
+        return -- Already installed
+      end
+
+      -- Use pcall to handle case where registry isn't fully loaded yet
+      local ok, pkg = pcall(mr.get_package, 'jdtls')
+      if ok and pkg and not pkg:is_installed() then
+        pkg:install()
       end
     end,
   },
