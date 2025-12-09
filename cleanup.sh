@@ -41,7 +41,7 @@ $CLEAN_CONFIG && echo "  - Config files (~/.config, symlinks)"
 $CLEAN_STATE && echo "  - State/Share data (~/.local/share, ~/.local/state)"
 $CLEAN_CACHE && echo "  - Cache files (~/.cache)"
 echo ""
-echo "Affected tools: Neovim, Zsh, Starship, Wezterm, Mason, vfox, Git, fzf, mcfly, zoxide"
+echo "Affected tools: Neovim, Zsh, Starship, Wezterm, Mason, vfox, Git, fzf, zoxide"
 echo ""
 echo "Your dotfiles repo will NOT be affected."
 echo ""
@@ -168,12 +168,6 @@ fi
 if $CLEAN_STATE; then
     echo "Cleaning fzf..."
     safe_remove ~/.fzf
-fi
-
-# mcfly
-if $CLEAN_STATE; then
-    echo "Cleaning mcfly..."
-    safe_remove ~/.local/share/mcfly
 fi
 
 # zoxide
