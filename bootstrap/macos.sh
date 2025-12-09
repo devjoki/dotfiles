@@ -76,43 +76,36 @@ fi
 # Activate vfox
 eval "$(vfox activate bash)"
 
-# SDK VERSIONS
-JAVA_VERSION="latest"
-GRADLE_VERSION="latest"
-MAVEN_VERSION="latest"
-NODE_VERSION="latest"
-GO_VERSION="latest"
-
 echo "Installing SDKs via vfox..."
 
 # Install Java
 if ! command -v java &> /dev/null; then
-	echo "Installing Java $JAVA_VERSION..."
-	vfox_install_sdk java "$JAVA_VERSION"
+	echo "Installing Java $VFOX_JAVA_VERSION..."
+	vfox_install_sdk java "$VFOX_JAVA_VERSION"
 fi
 
 # Install Maven
 if ! command -v mvn &> /dev/null; then
-	echo "Installing Maven $MAVEN_VERSION..."
-	vfox_install_sdk maven "$MAVEN_VERSION"
+	echo "Installing Maven $VFOX_MAVEN_VERSION..."
+	vfox_install_sdk maven "$VFOX_MAVEN_VERSION"
 fi
 
 # Install Gradle
 if ! command -v gradle &> /dev/null; then
-	echo "Installing Gradle $GRADLE_VERSION..."
-	vfox_install_sdk gradle "$GRADLE_VERSION"
+	echo "Installing Gradle $VFOX_GRADLE_VERSION..."
+	vfox_install_sdk gradle "$VFOX_GRADLE_VERSION"
 fi
 
 # Install Node.js
 if ! command -v node &> /dev/null; then
-	echo "Installing Node.js $NODE_VERSION..."
-	vfox_install_sdk nodejs "$NODE_VERSION"
+	echo "Installing Node.js $VFOX_NODE_VERSION..."
+	vfox_install_sdk nodejs "$VFOX_NODE_VERSION"
 fi
 
 # Install Go
 if ! command -v go &> /dev/null; then
-	echo "Installing Go $GO_VERSION..."
-	vfox_install_sdk golang "$GO_VERSION"
+	echo "Installing Go $VFOX_GO_VERSION..."
+	vfox_install_sdk golang "$VFOX_GO_VERSION"
 fi
 
 # Install LaTeX (optional)

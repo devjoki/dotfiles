@@ -336,6 +336,13 @@ select_config_type() {
 	echo ""
 }
 
+# SDK VERSIONS - Central version definitions
+export VFOX_JAVA_VERSION="25+36-tem"
+export VFOX_GRADLE_VERSION="8.7"
+export VFOX_MAVEN_VERSION="3.9.9"
+export VFOX_NODE_VERSION="latest"
+export VFOX_GO_VERSION="latest"
+
 # Helper function to install vfox SDK
 # Usage: vfox_install_sdk <plugin_name> <version>
 vfox_install_sdk() {

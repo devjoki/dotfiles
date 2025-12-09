@@ -95,30 +95,25 @@ fi
 
 # Install SDKs
 eval "$(vfox activate bash)"
-JAVA_VERSION="latest"
-GRADLE_VERSION="latest"
-MAVEN_VERSION="latest"
-NODE_VERSION="latest"
-GO_VERSION="latest"
 
 if [ ! -x "$(command -v java)" ]; then
-	vfox_install_sdk java "$JAVA_VERSION"
+	vfox_install_sdk java "$VFOX_JAVA_VERSION"
 fi
 
 if [ ! -x "$(command -v mvn)" ]; then
-	vfox_install_sdk maven "$MAVEN_VERSION"
+	vfox_install_sdk maven "$VFOX_MAVEN_VERSION"
 fi
 
 if [ ! -x "$(command -v gradle)" ]; then
-	vfox_install_sdk gradle "$GRADLE_VERSION"
+	vfox_install_sdk gradle "$VFOX_GRADLE_VERSION"
 fi
 
 if [ ! -x "$(command -v node)" ]; then
-	vfox_install_sdk nodejs "$NODE_VERSION"
+	vfox_install_sdk nodejs "$VFOX_NODE_VERSION"
 fi
 
 if [ ! -x "$(command -v go)" ]; then
-	vfox_install_sdk golang "$GO_VERSION"
+	vfox_install_sdk golang "$VFOX_GO_VERSION"
 fi
 
 # Optional: Install LaTeX
