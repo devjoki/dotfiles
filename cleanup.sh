@@ -9,9 +9,14 @@ source "$SCRIPT_DIR/utils/utils.sh"
 safe_remove() {
     local path=$1
     if [ -e "$path" ]; then
-        if ! rm -rf "$path" 2>&1; then
-            echo_err "Failed to remove: $path"
+        echo "  Removing: $path"
+        if rm -rf "$path" 2>/dev/null; then
+            echo "  ✓ Removed: $path"
+        else
+            echo_err "  ✗ Failed to remove: $path (check permissions)"
         fi
+    else
+        echo "  - Not found: $path (skipping)"
     fi
 }
 
