@@ -349,7 +349,7 @@ vfox_install_sdk() {
 			if ! choice "Continue with bootstrap anyway?"; then
 				exit 1
 			fi
-			return 1
+			return 0  # User chose to continue, return success
 		fi
 	fi
 
@@ -359,7 +359,7 @@ vfox_install_sdk() {
 		if ! choice "Continue with bootstrap anyway?"; then
 			exit 1
 		fi
-		return 1
+		return 0  # User chose to continue, return success
 	fi
 
 	# Set global version (only if install succeeded)
