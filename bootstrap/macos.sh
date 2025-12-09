@@ -88,41 +88,31 @@ echo "Installing SDKs via vfox..."
 # Install Java
 if ! command -v java &> /dev/null; then
 	echo "Installing Java $JAVA_VERSION..."
-	vfox add java
-	vfox install "java@$JAVA_VERSION"
-	vfox use -g java
+	vfox_install_sdk java "$JAVA_VERSION"
 fi
 
 # Install Maven
 if ! command -v mvn &> /dev/null; then
 	echo "Installing Maven $MAVEN_VERSION..."
-	vfox add maven
-	vfox install "maven@$MAVEN_VERSION"
-	vfox use -g maven
+	vfox_install_sdk maven "$MAVEN_VERSION"
 fi
 
 # Install Gradle
 if ! command -v gradle &> /dev/null; then
 	echo "Installing Gradle $GRADLE_VERSION..."
-	vfox add gradle
-	vfox install "gradle@$GRADLE_VERSION"
-	vfox use -g gradle
+	vfox_install_sdk gradle "$GRADLE_VERSION"
 fi
 
 # Install Node.js
 if ! command -v node &> /dev/null; then
 	echo "Installing Node.js $NODE_VERSION..."
-	vfox add nodejs
-	vfox install "nodejs@$NODE_VERSION"
-	vfox use -g nodejs
+	vfox_install_sdk nodejs "$NODE_VERSION"
 fi
 
 # Install Go
 if ! command -v go &> /dev/null; then
 	echo "Installing Go $GO_VERSION..."
-	vfox add golang
-	vfox install "golang@$GO_VERSION"
-	vfox use -g golang
+	vfox_install_sdk golang "$GO_VERSION"
 fi
 
 # Install LaTeX (optional)

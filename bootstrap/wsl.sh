@@ -125,33 +125,23 @@ GO_VERSION="latest"
 echo "Installing SDKs via vfox..."
 
 if ! command -v java &> /dev/null; then
-	vfox add java
-	vfox install "java@$JAVA_VERSION"
-	vfox use -g "java@$JAVA_VERSION"
+	vfox_install_sdk java "$JAVA_VERSION"
 fi
 
 if ! command -v mvn &> /dev/null; then
-	vfox add maven
-	vfox install "maven@$MAVEN_VERSION"
-	vfox use -g "maven@$MAVEN_VERSION"
+	vfox_install_sdk maven "$MAVEN_VERSION"
 fi
 
 if ! command -v gradle &> /dev/null; then
-	vfox add gradle
-	vfox install "gradle@$GRADLE_VERSION"
-	vfox use -g "gradle@$GRADLE_VERSION"
+	vfox_install_sdk gradle "$GRADLE_VERSION"
 fi
 
 if ! command -v node &> /dev/null; then
-	vfox add nodejs
-	vfox install "nodejs@$NODE_VERSION"
-	vfox use -g "nodejs@$NODE_VERSION"
+	vfox_install_sdk nodejs "$NODE_VERSION"
 fi
 
 if ! command -v go &> /dev/null; then
-	vfox add golang
-	vfox install "golang@$GO_VERSION"
-	vfox use -g "golang@$GO_VERSION"
+	vfox_install_sdk golang "$GO_VERSION"
 fi
 
 # Optional: Install LaTeX

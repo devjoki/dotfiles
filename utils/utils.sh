@@ -335,3 +335,33 @@ select_config_type() {
 	esac
 	echo ""
 }
+
+# Helper function to install vfox SDK
+# Usage: vfox_install_sdk <plugin_name> <version>
+vfox_install_sdk() {
+	local plugin_name=$1
+	local version=$2
+
+	# Add plugin if not already added
+	if ! vfox info "$plugin_name" &>/dev/null; then
+		if ! vfox add "$plugin_name"; then
+			echo_err "Failed to add plugin: $plugin_name"
+			if ! choice "Continue with bootstrap anyway?"; then
+				exit 1
+			fi
+			return 1
+		fi
+	fi
+
+	# Install version
+	if ! vfox install "${plugin_name}@${version}"; then
+		echo_err "Failed to install ${plugin_name}@${version}"
+		if ! choice "Continue with bootstrap anyway?"; then
+			exit 1
+		fi
+		return 1
+	fi
+
+	# Set global version (only if install succeeded)
+	vfox use -g "${plugin_name}@${version}"
+}
