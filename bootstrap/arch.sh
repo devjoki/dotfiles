@@ -68,7 +68,25 @@ if ! command -v fzf &> /dev/null; then
 	if [ ! -d ~/.fzf ]; then
 		git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 	fi
-	~/.fzf/install --bin
+	~/.fzf/install --key-bindings --completion --no-update-rc --no-bash --no-fish
+fi
+
+# Install fd (faster alternative to find)
+if ! command -v fd &> /dev/null; then
+	echo "Installing fd..."
+	sudo pacman -S --noconfirm fd
+fi
+
+# Install bat (cat with syntax highlighting)
+if ! command -v bat &> /dev/null; then
+	echo "Installing bat..."
+	sudo pacman -S --noconfirm bat
+fi
+
+# Install ripgrep (faster grep)
+if ! command -v rg &> /dev/null; then
+	echo "Installing ripgrep..."
+	sudo pacman -S --noconfirm ripgrep
 fi
 
 # Rust

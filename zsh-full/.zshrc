@@ -19,6 +19,10 @@ zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
 
 source "$HOME/.config/zsh-shared/zsh_extensions/fzf-tab/fzf-tab.plugin.zsh"
 command -v zoxide &> /dev/null && eval "$(zoxide init zsh --cmd cd)"
+
+# Load enhanced fzf configuration
+source_if_exists "$HOME/.config/zsh-shared/fzf-config.sh"
+
 # Additinal config that should not be sourceControlled
 source_if_exists "$HOME/.config/zsh-shared/zsh_extensions/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 source_if_exists "$HOME/.cargo/env"

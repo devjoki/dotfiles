@@ -77,7 +77,34 @@ if ! command -v fzf &> /dev/null; then
 	if [ ! -d ~/.fzf ]; then
 		git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 	fi
-	~/.fzf/install --bin
+	~/.fzf/install --key-bindings --completion --no-update-rc --no-bash --no-fish
+fi
+
+# Install fd (faster alternative to find)
+if ! command -v fd &> /dev/null; then
+	echo "Installing fd..."
+	FD_VERSION=$(curl -s https://api.github.com/repos/sharkdp/fd/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
+	curl -Lo /tmp/fd.deb "https://github.com/sharkdp/fd/releases/download/${FD_VERSION}/fd_${FD_VERSION#v}_amd64.deb"
+	sudo dpkg -i /tmp/fd.deb
+	rm /tmp/fd.deb
+fi
+
+# Install bat (cat with syntax highlighting)
+if ! command -v bat &> /dev/null; then
+	echo "Installing bat..."
+	BAT_VERSION=$(curl -s https://api.github.com/repos/sharkdp/bat/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
+	curl -Lo /tmp/bat.deb "https://github.com/sharkdp/bat/releases/download/${BAT_VERSION}/bat_${BAT_VERSION#v}_amd64.deb"
+	sudo dpkg -i /tmp/bat.deb
+	rm /tmp/bat.deb
+fi
+
+# Install ripgrep (faster grep)
+if ! command -v rg &> /dev/null; then
+	echo "Installing ripgrep..."
+	RG_VERSION=$(curl -s https://api.github.com/repos/BurntSushi/ripgrep/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
+	curl -Lo /tmp/ripgrep.deb "https://github.com/BurntSushi/ripgrep/releases/download/${RG_VERSION}/ripgrep_${RG_VERSION#v}_amd64.deb"
+	sudo dpkg -i /tmp/ripgrep.deb
+	rm /tmp/ripgrep.deb
 fi
 
 # Install Rust

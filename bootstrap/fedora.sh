@@ -102,7 +102,33 @@ if ! command -v fzf &> /dev/null; then
     if [ ! -d ~/.fzf ]; then
         git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
     fi
-    ~/.fzf/install --bin
+    ~/.fzf/install --key-bindings --completion --no-update-rc --no-bash --no-fish
+fi
+
+# Install fd (faster alternative to find)
+if ! command -v fd &> /dev/null; then
+    echo "Installing fd..."
+    FD_VERSION=$(curl -s https://api.github.com/repos/sharkdp/fd/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
+    curl -Lo /tmp/fd.tar.gz "https://github.com/sharkdp/fd/releases/download/${FD_VERSION}/fd-${FD_VERSION}-x86_64-unknown-linux-gnu.tar.gz"
+    sudo tar -xzf /tmp/fd.tar.gz -C /tmp
+    sudo cp /tmp/fd-*/fd /usr/local/bin/
+    rm -rf /tmp/fd.tar.gz /tmp/fd-*
+fi
+
+# Install bat (cat with syntax highlighting)
+if ! command -v bat &> /dev/null; then
+    echo "Installing bat..."
+    BAT_VERSION=$(curl -s https://api.github.com/repos/sharkdp/bat/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
+    curl -Lo /tmp/bat.tar.gz "https://github.com/sharkdp/bat/releases/download/${BAT_VERSION}/bat-${BAT_VERSION}-x86_64-unknown-linux-gnu.tar.gz"
+    sudo tar -xzf /tmp/bat.tar.gz -C /tmp
+    sudo cp /tmp/bat-*/bat /usr/local/bin/
+    rm -rf /tmp/bat.tar.gz /tmp/bat-*
+fi
+
+# Install ripgrep (faster grep)
+if ! command -v rg &> /dev/null; then
+    echo "Installing ripgrep..."
+    sudo dnf install -y ripgrep
 fi
 
 # Install lazygit

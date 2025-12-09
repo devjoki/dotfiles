@@ -48,23 +48,11 @@ if [[ "$SHELL" != "$(which zsh)" ]]; then
 	chsh -s "$(which zsh)"
 fi
 
-# Install development tools
-echo "Installing development tools..."
-install_app_if_not_exists "nvim" "brew install neovim"
+# Install starship prompt
 install_app_if_not_exists "starship" "brew install starship"
-install_app_if_not_exists "vfox" "brew install vfox"
-install_app_if_not_exists "lazygit" "brew install jesseduffield/lazygit/lazygit"
-install_app_if_not_exists "eza" "brew install eza"
-install_app_if_not_exists "zoxide" "brew install zoxide"
-install_app_if_not_exists "fzf" "brew install fzf"
 
-# Install Rust
-if ! command -v rustup &> /dev/null; then
-	echo "Installing Rust..."
-	curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-	source "$HOME/.cargo/env"
-	rustup install stable
-fi
+# Install neovim
+install_app_if_not_exists "nvim" "brew install neovim"
 
 # Install Wezterm
 if ! command -v wezterm &> /dev/null; then
@@ -72,62 +60,95 @@ if ! command -v wezterm &> /dev/null; then
 	brew install --cask wezterm
 fi
 
-# Activate vfox
-eval "$(vfox activate bash)"
+# Install zoxide
+install_app_if_not_exists "zoxide" "brew install zoxide"
 
-echo "Installing SDKs via vfox..."
+# Install eza (modern replacement for ls)
+install_app_if_not_exists "eza" "brew install eza"
 
-# Install Java
-if ! command -v java &> /dev/null; then
-	echo "Installing Java $VFOX_JAVA_VERSION..."
-	vfox_install_sdk java "$VFOX_JAVA_VERSION"
-fi
+# Install fzf (fuzzy finder)
+install_app_if_not_exists "fzf" "brew install fzf"
 
-# Install Maven
-if ! command -v mvn &> /dev/null; then
-	echo "Installing Maven $VFOX_MAVEN_VERSION..."
-	vfox_install_sdk maven "$VFOX_MAVEN_VERSION"
-fi
+# Install fd (faster alternative to find)
+install_app_if_not_exists "fd" "brew install fd"
 
-# Install Gradle
-if ! command -v gradle &> /dev/null; then
-	echo "Installing Gradle $VFOX_GRADLE_VERSION..."
-	vfox_install_sdk gradle "$VFOX_GRADLE_VERSION"
-fi
+# Install bat (cat with syntax highlighting)
+install_app_if_not_exists "bat" "brew install bat"
 
-# Install Node.js
-if ! command -v node &> /dev/null; then
-	echo "Installing Node.js $VFOX_NODE_VERSION..."
-	vfox_install_sdk nodejs "$VFOX_NODE_VERSION"
-fi
+# Install ripgrep (faster grep)
+install_app_if_not_exists "rg" "brew install ripgrep"
 
-# Install Go
-if ! command -v go &> /dev/null; then
-	echo "Installing Go $VFOX_GO_VERSION..."
-	vfox_install_sdk golang "$VFOX_GO_VERSION"
-fi
-
-# Install LaTeX (optional)
-# Note: latexmk comes with MacTeX/BasicTeX distributions
-if ! command -v latexmk &> /dev/null; then
-    echo "LaTeX tools (latexmk) not found."
-    if choice "Install BasicTeX (LaTeX distribution)?"; then
-        brew install --cask basictex
-        echo "Note: You may need to restart your terminal or run: eval \"\$(/usr/libexec/path_helper)\""
-    else
-        echo "Skipping LaTeX installation"
-    fi
-fi
+# Install lazygit
+install_app_if_not_exists "lazygit" "brew install jesseduffield/lazygit/lazygit"
 
 # Create config properties file
 touch "$HOME/.zsh_config.properties"
 
+# Ask user to select slim or full configuration
+echo ""
+select_config_type
+echo ""
+
+# Install dev tools only for full configuration
+if [ "$NVIM_CONFIG" = "nvim-full" ]; then
+    echo "Installing development tools (full configuration)..."
+
+    # Install vfox (version manager)
+    install_app_if_not_exists "vfox" "brew install vfox"
+
+    # Install Rust
+    if ! command -v rustup &> /dev/null; then
+        echo "Installing Rust..."
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+        source "$HOME/.cargo/env"
+        rustup install stable
+    fi
+
+    # Activate vfox
+    eval "$(vfox activate bash)"
+
+    echo "Installing SDKs via vfox..."
+
+    # Install Java
+    if ! command -v java &> /dev/null; then
+        echo "Installing Java $VFOX_JAVA_VERSION..."
+        vfox_install_sdk java "$VFOX_JAVA_VERSION"
+    fi
+
+    # Install Maven
+    if ! command -v mvn &> /dev/null; then
+        echo "Installing Maven $VFOX_MAVEN_VERSION..."
+        vfox_install_sdk maven "$VFOX_MAVEN_VERSION"
+    fi
+
+    # Install Gradle
+    if ! command -v gradle &> /dev/null; then
+        echo "Installing Gradle $VFOX_GRADLE_VERSION..."
+        vfox_install_sdk gradle "$VFOX_GRADLE_VERSION"
+    fi
+
+    # Install Node.js
+    if ! command -v node &> /dev/null; then
+        echo "Installing Node.js $VFOX_NODE_VERSION..."
+        vfox_install_sdk nodejs "$VFOX_NODE_VERSION"
+    fi
+
+    # Install Go
+    if ! command -v go &> /dev/null; then
+        echo "Installing Go $VFOX_GO_VERSION..."
+        vfox_install_sdk golang "$VFOX_GO_VERSION"
+    fi
+
+    # Install LaTeX (optional)
+    # Note: latexmk comes with MacTeX/BasicTeX distributions
+    if choice "Install LaTeX (latexmk)?"; then
+        brew install --cask basictex
+        echo "Note: You may need to restart your terminal or run: eval \"\$(/usr/libexec/path_helper)\""
+    fi
+fi
+
 # Create symbolic links
 echo "Creating symbolic links..."
-touch "$HOME/.zsh_config.properties"
-
-# Ask user to select slim or full configuration
-select_config_type
 
 source "$SCRIPT_DIR/bootstrap/common-symlinks.sh"
 
