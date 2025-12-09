@@ -17,11 +17,7 @@ autoload -U compinit; compinit
 zstyle ':completion:*' menu no
 zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
 
-# Load fzf-tab BEFORE mcfly to avoid keybinding conflicts
 source "$HOME/.config/zsh-shared/zsh_extensions/fzf-tab/fzf-tab.plugin.zsh"
-
-# Load mcfly AFTER fzf-tab
-command -v mcfly &> /dev/null && eval "$(mcfly init zsh)"
 command -v zoxide &> /dev/null && eval "$(zoxide init zsh --cmd cd)"
 # Additinal config that should not be sourceControlled
 source_if_exists "$HOME/.config/zsh-shared/zsh_extensions/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"

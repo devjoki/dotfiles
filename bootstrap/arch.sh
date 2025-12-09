@@ -62,12 +62,6 @@ if ! command -v zoxide &> /dev/null; then
 	curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
 fi
 
-# Install mcfly
-if ! command -v mcfly &> /dev/null; then
-	echo "Installing mcfly..."
-	curl -LSfs https://raw.githubusercontent.com/cantino/mcfly/master/ci/install.sh | sh -s -- --git cantino/mcfly
-fi
-
 # Install fzf
 if ! command -v fzf &> /dev/null; then
 	echo "Installing fzf..."
