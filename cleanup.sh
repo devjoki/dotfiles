@@ -13,7 +13,12 @@ safe_remove() {
         if rm -rf "$path" 2>/dev/null; then
             echo "  ✓ Removed: $path"
         else
-            echo_err "  ✗ Failed to remove: $path (check permissions)"
+            echo_warn "  Permission denied, trying with sudo..."
+            if sudo rm -rf "$path" 2>/dev/null; then
+                echo "  ✓ Removed with sudo: $path"
+            else
+                echo_err "  ✗ Failed to remove even with sudo: $path"
+            fi
         fi
     else
         echo "  - Not found: $path (skipping)"
