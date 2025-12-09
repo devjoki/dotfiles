@@ -101,11 +101,35 @@ MAVEN_VERSION="latest"
 NODE_VERSION="latest"
 GO_VERSION="latest"
 
-[ ! -x "$(command -v java)" ] && vfox add java && vfox install "java@$JAVA_VERSION" && vfox use -g java
-[ ! -x "$(command -v mvn)" ] && vfox add maven && vfox install "maven@$MAVEN_VERSION" && vfox use -g maven
-[ ! -x "$(command -v gradle)" ] && vfox add gradle && vfox install "gradle@$GRADLE_VERSION" && vfox use -g gradle
-[ ! -x "$(command -v node)" ] && vfox add nodejs && vfox install "nodejs@$NODE_VERSION" && vfox use -g nodejs
-[ ! -x "$(command -v go)" ] && vfox add golang && vfox install "golang@$GO_VERSION" && vfox use -g golang
+if [ ! -x "$(command -v java)" ]; then
+	vfox add java
+	vfox install "java@$JAVA_VERSION"
+	vfox use -g "java@$JAVA_VERSION"
+fi
+
+if [ ! -x "$(command -v mvn)" ]; then
+	vfox add maven
+	vfox install "maven@$MAVEN_VERSION"
+	vfox use -g "maven@$MAVEN_VERSION"
+fi
+
+if [ ! -x "$(command -v gradle)" ]; then
+	vfox add gradle
+	vfox install "gradle@$GRADLE_VERSION"
+	vfox use -g "gradle@$GRADLE_VERSION"
+fi
+
+if [ ! -x "$(command -v node)" ]; then
+	vfox add nodejs
+	vfox install "nodejs@$NODE_VERSION"
+	vfox use -g "nodejs@$NODE_VERSION"
+fi
+
+if [ ! -x "$(command -v go)" ]; then
+	vfox add golang
+	vfox install "golang@$GO_VERSION"
+	vfox use -g "golang@$GO_VERSION"
+fi
 
 # Optional: Install LaTeX
 if choice "Install LaTeX (latexmk and zathura)?"; then
