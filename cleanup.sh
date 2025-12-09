@@ -166,20 +166,10 @@ fi
 # vfox
 if $CLEAN_STATE; then
     echo "Cleaning vfox..."
-    # Uninstall all SDKs first if vfox is available
-    if command -v vfox &> /dev/null; then
-        echo "  Uninstalling all vfox SDKs..."
-        # List all installed plugins and uninstall each one
-        vfox list 2>/dev/null | grep -v "^$" | while read -r line; do
-            plugin_name=$(echo "$line" | awk '{print $1}')
-            if [ -n "$plugin_name" ]; then
-                echo "    Uninstalling: $plugin_name"
-                vfox uninstall "$plugin_name" --all 2>/dev/null || echo_warn "    Could not uninstall $plugin_name"
-            fi
-        done
-    fi
-    # Remove vfox directory
+    # Just remove the entire vfox directory (includes all SDKs, cache, and config)
     safe_remove ~/.version-fox
+    safe_remove ~/.local/share/vfox
+    safe_remove ~/.local/state/vfox
 fi
 
 # fzf
