@@ -351,7 +351,12 @@ vfox_install_sdk() {
 
 	# Add plugin if not already added
 	if ! vfox info "$plugin_name" &>/dev/null; then
-		if ! vfox add "$plugin_name"; then
+		set +e  # Temporarily disable exit on error
+		vfox add "$plugin_name"
+		local add_exit_code=$?
+		set -e  # Re-enable exit on error
+
+		if [ $add_exit_code -ne 0 ]; then
 			echo_err "Failed to add plugin: $plugin_name"
 			if ! choice "Continue with bootstrap anyway?"; then
 				exit 1
@@ -361,7 +366,12 @@ vfox_install_sdk() {
 	fi
 
 	# Install version
-	if ! vfox install "${plugin_name}@${version}"; then
+	set +e  # Temporarily disable exit on error
+	vfox install "${plugin_name}@${version}"
+	local install_exit_code=$?
+	set -e  # Re-enable exit on error
+
+	if [ $install_exit_code -ne 0 ]; then
 		echo_err "Failed to install ${plugin_name}@${version}"
 		if ! choice "Continue with bootstrap anyway?"; then
 			exit 1
