@@ -360,25 +360,15 @@ vfox_install_sdk() {
 		fi
 	fi
 
-	# Install version (suppress error if already installed)
-	local install_output
-	install_output=$(vfox install "${plugin_name}@${version}" 2>&1)
-	local install_exit_code=$?
-
-	if [ $install_exit_code -ne 0 ]; then
-		# Check if it failed because already installed
-		if echo "$install_output" | grep -q "is already installed"; then
-			echo_warn "${plugin_name}@${version} is already installed, skipping"
-		else
-			echo_err "Failed to install ${plugin_name}@${version}"
-			echo "$install_output"
-			if ! choice "Continue with bootstrap anyway?"; then
-				exit 1
-			fi
-			return 0  # User chose to continue, return success
+	# Install version
+	if ! vfox install "${plugin_name}@${version}"; then
+		echo_err "Failed to install ${plugin_name}@${version}"
+		if ! choice "Continue with bootstrap anyway?"; then
+			exit 1
 		fi
+		return 0  # User chose to continue, return success
 	fi
 
-	# Set global version
+	# Set global version (only if install succeeded)
 	vfox use -g "${plugin_name}@${version}"
 }
