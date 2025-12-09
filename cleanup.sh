@@ -57,129 +57,129 @@ echo "Starting cleanup..."
 # Neovim
 if $CLEAN_CONFIG; then
     echo "Cleaning Neovim config..."
-    rm -rf ~/.config/nvim
+    safe_remove ~/.config/nvim
 fi
 
 if $CLEAN_STATE; then
     echo "Cleaning Neovim state/share..."
-    rm -rf ~/.local/share/nvim
-    rm -rf ~/.local/state/nvim
+    safe_remove ~/.local/share/nvim
+    safe_remove ~/.local/state/nvim
 fi
 
 if $CLEAN_CACHE; then
     echo "Cleaning Neovim cache..."
-    rm -rf ~/.cache/nvim
+    safe_remove ~/.cache/nvim
 fi
 
 # Mason
 if $CLEAN_STATE; then
     echo "Cleaning Mason..."
-    rm -rf ~/.local/share/mason
+    safe_remove ~/.local/share/mason
 fi
 
 # Zsh
 if $CLEAN_CONFIG; then
     echo "Cleaning Zsh config..."
-    rm -f ~/.zshenv
-    rm -f ~/.zshrc
-    rm -f ~/.zsh_config.properties
-    rm -rf ~/.config/zsh
-    rm -rf ~/.config/zsh-shared
+    safe_remove ~/.zshenv
+    safe_remove ~/.zshrc
+    safe_remove ~/.zsh_config.properties
+    safe_remove ~/.config/zsh
+    safe_remove ~/.config/zsh-shared
 fi
 
 if $CLEAN_STATE; then
     echo "Cleaning Zsh state..."
-    rm -f ~/.zsh_history
-    rm -rf ~/.zsh_sessions
+    safe_remove ~/.zsh_history
+    safe_remove ~/.zsh_sessions
     # Zsh extensions
-    rm -rf ~/.local/share/zsh
+    safe_remove ~/.local/share/zsh
 fi
 
 # Starship
 if $CLEAN_CONFIG; then
     echo "Cleaning Starship config..."
-    rm -f ~/.config/starship.toml
+    safe_remove ~/.config/starship.toml
 fi
 
 # Wezterm
 if $CLEAN_CONFIG; then
     echo "Cleaning Wezterm config..."
-    rm -rf ~/.config/wezterm
-    rm -f ~/.wezterm.lua
+    safe_remove ~/.config/wezterm
+    safe_remove ~/.wezterm.lua
 fi
 
 # Neovim shared
 if $CLEAN_CONFIG; then
     echo "Cleaning Neovim shared config..."
-    rm -rf ~/.config/nvim-shared
+    safe_remove ~/.config/nvim-shared
 fi
 
 # Utils
 if $CLEAN_CONFIG; then
     echo "Cleaning utils..."
-    rm -rf ~/.config/utils
-    rm -rf ~/.scripts
+    safe_remove ~/.config/utils
+    safe_remove ~/.scripts
 fi
 
 # Git
 if $CLEAN_CONFIG; then
     echo "Cleaning Git config..."
-    rm -rf ~/.config/git
+    safe_remove ~/.config/git
 fi
 
 # Lazygit
 if $CLEAN_CONFIG; then
     echo "Cleaning Lazygit config..."
-    rm -rf ~/.config/lazygit
+    safe_remove ~/.config/lazygit
 fi
 
 # Eza
 if $CLEAN_CONFIG; then
     echo "Cleaning Eza config..."
-    rm -rf ~/.config/eza
+    safe_remove ~/.config/eza
 fi
 
 # Ghostty
 if $CLEAN_CONFIG; then
     echo "Cleaning Ghostty config..."
-    rm -rf ~/.config/ghostty
+    safe_remove ~/.config/ghostty
 fi
 
 # GTK-2.0
 if $CLEAN_CONFIG; then
     echo "Cleaning GTK-2.0 config..."
-    rm -rf ~/.config/gtk-2.0
+    safe_remove ~/.config/gtk-2.0
 fi
 
 # IdeaVim
 if $CLEAN_CONFIG; then
     echo "Cleaning IdeaVim config..."
-    rm -f ~/.ideavimrc
-    rm -rf ~/.config/ideavim
+    safe_remove ~/.ideavimrc
+    safe_remove ~/.config/ideavim
 fi
 
 # vfox
 if $CLEAN_STATE; then
     echo "Cleaning vfox..."
-    rm -rf ~/.version-fox
+    safe_remove ~/.version-fox
 fi
 
 # fzf
 if $CLEAN_STATE; then
     echo "Cleaning fzf..."
-    rm -rf ~/.fzf
+    safe_remove ~/.fzf
 fi
 
 # mcfly
 if $CLEAN_STATE; then
     echo "Cleaning mcfly..."
-    rm -rf ~/.local/share/mcfly
+    safe_remove ~/.local/share/mcfly
 fi
 
 # zoxide
 if $CLEAN_STATE; then
     echo "Cleaning zoxide..."
-    rm -rf ~/.local/share/zoxide
+    safe_remove ~/.local/share/zoxide
 fi
 
 echo ""
