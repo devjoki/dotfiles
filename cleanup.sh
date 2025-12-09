@@ -2,10 +2,18 @@
 # Cleanup script for dotfiles-managed configurations
 # This removes configs, data, and caches for tools managed by this dotfiles repo
 
-set -e
-
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/utils/utils.sh"
+
+# Helper function to safely remove directories/files with error reporting
+safe_remove() {
+    local path=$1
+    if [ -e "$path" ]; then
+        if ! rm -rf "$path" 2>&1; then
+            echo_err "Failed to remove: $path"
+        fi
+    fi
+}
 
 echo "=== Dotfiles Cleanup Script ==="
 echo ""
