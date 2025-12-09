@@ -22,7 +22,8 @@ sudo dnf install -y \
     wget \
     unzip \
     zsh \
-    util-linux-user
+    util-linux-user \
+    libatomic
 
 # Change default shell to zsh
 if [[ "$SHELL" != "$(which zsh)" ]]; then

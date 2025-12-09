@@ -6,7 +6,7 @@ echo "=== Arch Linux Bootstrap ==="
 sudo pacman -Syu --noconfirm
 
 # Install essential tools
-sudo pacman -S --noconfirm git curl wget unzip zsh base-devel
+sudo pacman -S --noconfirm git curl wget unzip zsh base-devel gcc-libs
 
 # Change shell
 if [[ "$SHELL" != "$(which zsh)" ]]; then

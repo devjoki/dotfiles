@@ -28,6 +28,7 @@ install_package_if_not_exists "curl"
 install_package_if_not_exists "wget"
 install_package_if_not_exists "unzip"
 install_package_if_not_exists "xclip"
+install_package_if_not_exists "libatomic1"
 
 # Install Zsh
 install_package_if_not_exists "zsh"

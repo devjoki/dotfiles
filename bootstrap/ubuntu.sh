@@ -17,6 +17,7 @@ install_package_if_not_exists "curl"
 install_package_if_not_exists "wget"
 install_package_if_not_exists "unzip"
 install_package_if_not_exists "zsh"
+install_package_if_not_exists "libatomic1"
 
 # Change shell to zsh
 if [[ "$SHELL" != "$(which zsh)" ]]; then
