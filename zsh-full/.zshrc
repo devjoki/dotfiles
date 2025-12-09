@@ -9,14 +9,19 @@ export EZA_CONFIG_DIR="$HOME/.config/eza"
 # Initialize tools (check if they exist first to avoid errors)
 command -v starship &> /dev/null && eval "$(starship init zsh)"
 command -v vfox &> /dev/null && eval "$(vfox activate zsh)"
-command -v mcfly &> /dev/null && eval "$(mcfly init zsh)"
+
+# Completion system must be initialized before fzf-tab
 autoload -U compinit; compinit
 
 # fzf-tab configuration (must be before loading the plugin)
 zstyle ':completion:*' menu no
 zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
 
+# Load fzf-tab BEFORE mcfly to avoid keybinding conflicts
 source "$HOME/.config/zsh-shared/zsh_extensions/fzf-tab/fzf-tab.plugin.zsh"
+
+# Load mcfly AFTER fzf-tab
+command -v mcfly &> /dev/null && eval "$(mcfly init zsh)"
 command -v zoxide &> /dev/null && eval "$(zoxide init zsh --cmd cd)"
 # Additinal config that should not be sourceControlled
 source_if_exists "$HOME/.config/zsh-shared/zsh_extensions/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
