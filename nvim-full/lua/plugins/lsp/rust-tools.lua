@@ -29,6 +29,11 @@ return {
       },
       server = {
         on_attach = function(client, bufnr)
+          -- Enable inlay hints (shows lifetimes, parameter names, inferred types, etc.)
+          if client.server_capabilities.inlayHintProvider and vim.lsp.inlay_hint then
+            vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+          end
+
           require('which-key').add {
             {
               '<C-space>',
@@ -39,11 +44,11 @@ return {
               buffer = bufnr,
             },
             {
-              '<Leader>a',
+              '<Leader>ca',
               function()
                 vim.cmd.RustLsp { 'codeAction' }
               end,
-              desc = 'Rust code actions',
+              desc = 'Rust [C]ode [A]ctions',
               buffer = bufnr,
             },
             {
