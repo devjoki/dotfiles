@@ -39,3 +39,7 @@ bindkey '^[[B' history-search-forward
 if [ -d /proc/version ] && grep -qi microsoft /proc/version && [ -f ~/.wsl_bash_sysinit ]; then
     . ~/.wsl_bash_sysinit
 fi
+
+# git-ai (managed) begin
+export PATH="${HOME}/.git-ai/bin:${PATH}"
+# git-ai (managed) end

@@ -34,6 +34,18 @@ return {
             vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
           end
 
+          -- Override gd to use Telescope for better navigation in Rust
+          require('which-key').add {
+            {
+              'gd',
+              function()
+                require('telescope.builtin').lsp_definitions()
+              end,
+              desc = 'Go to definition',
+              buffer = bufnr,
+            },
+          }
+
           require('which-key').add {
             {
               '<C-space>',
