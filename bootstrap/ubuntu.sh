@@ -1,16 +1,7 @@
 #!/bin/bash
-# Windows WSL Bootstrap Script
+# Ubuntu/Debian Bootstrap Script
 
-echo "=== Windows WSL Bootstrap ==="
-
-# WSL-specific configurations
-echo "Configuring WSL-specific settings..."
-sudo bash "$SCRIPT_DIR/../utils/run_util_function.sh" "append_unique_lines_to_file" "/etc/environment" "export WAYLAND_DISPLAY=wayland-0" "export DISPLAY=:0"
-
-# Required for vimtex neovim plugin
-if [ -f "$SCRIPT_DIR/wsl_bash_sysinit" ]; then
-	create_symlink "$SCRIPT_DIR/wsl_bash_sysinit" "$HOME/.wsl_bash_sysinit" --override
-fi
+echo "=== Ubuntu/Debian Bootstrap ==="
 
 # Update and upgrade
 echo "Updating system packages..."
@@ -18,29 +9,20 @@ sudo apt-get update
 sudo apt-get upgrade -y
 
 # Install build tools
-echo "Installing build-essential..."
 install_package_if_not_exists "build-essential"
 
 # Install essential tools
-echo "Installing essential packages..."
 install_package_if_not_exists "git"
 install_package_if_not_exists "curl"
 install_package_if_not_exists "wget"
 install_package_if_not_exists "unzip"
-install_package_if_not_exists "xclip"
+install_package_if_not_exists "zsh"
 install_package_if_not_exists "libatomic1"
 
-# Install Zsh
-install_package_if_not_exists "zsh"
-
-# Change default shell to zsh
+# Change shell to zsh
 if [[ "$SHELL" != "$(which zsh)" ]]; then
-	echo "Changing default shell to zsh..."
 	chsh -s "$(which zsh)"
 fi
-
-# Install development tools
-echo "Installing development tools..."
 
 # Install neovim
 if ! command -v nvim &> /dev/null; then
@@ -95,39 +77,63 @@ if ! command -v fzf &> /dev/null; then
 	if [ ! -d ~/.fzf ]; then
 		git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 	fi
-	~/.fzf/install --bin
+	~/.fzf/install --key-bindings --completion --no-update-rc --no-bash --no-fish
+fi
+
+# Install fd (faster alternative to find)
+if ! command -v fd &> /dev/null; then
+	echo "Installing fd..."
+	FD_VERSION=$(curl -s https://api.github.com/repos/sharkdp/fd/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
+	curl -Lo /tmp/fd.deb "https://github.com/sharkdp/fd/releases/download/${FD_VERSION}/fd_${FD_VERSION#v}_amd64.deb"
+	sudo dpkg -i /tmp/fd.deb
+	rm /tmp/fd.deb
+fi
+
+# Install bat (cat with syntax highlighting)
+if ! command -v bat &> /dev/null; then
+	echo "Installing bat..."
+	BAT_VERSION=$(curl -s https://api.github.com/repos/sharkdp/bat/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
+	curl -Lo /tmp/bat.deb "https://github.com/sharkdp/bat/releases/download/${BAT_VERSION}/bat_${BAT_VERSION#v}_amd64.deb"
+	sudo dpkg -i /tmp/bat.deb
+	rm /tmp/bat.deb
+fi
+
+# Install ripgrep (faster grep)
+if ! command -v rg &> /dev/null; then
+	echo "Installing ripgrep..."
+	RG_VERSION=$(curl -s https://api.github.com/repos/BurntSushi/ripgrep/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
+	curl -Lo /tmp/ripgrep.deb "https://github.com/BurntSushi/ripgrep/releases/download/${RG_VERSION}/ripgrep_${RG_VERSION#v}_amd64.deb"
+	sudo dpkg -i /tmp/ripgrep.deb
+	rm /tmp/ripgrep.deb
 fi
 
 # Install Rust
 if ! command -v rustup &> /dev/null; then
-	echo "Installing Rust..."
 	curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 	source "$HOME/.cargo/env"
 	rustup install stable
 fi
 
-# Activate vfox
+# Install SDKs
 eval "$(vfox activate bash)"
 
-echo "Installing SDKs via vfox..."
-
-if ! command -v java &> /dev/null; then
+if [ ! -x "$(command -v java)" ]; then
 	vfox_install_sdk java "$VFOX_JAVA_VERSION"
 fi
 
-if ! command -v mvn &> /dev/null; then
+if [ ! -x "$(command -v mvn)" ]; then
 	vfox_install_sdk maven "$VFOX_MAVEN_VERSION"
 fi
 
-if ! command -v gradle &> /dev/null; then
+if [ ! -x "$(command -v gradle)" ]; then
 	vfox_install_sdk gradle "$VFOX_GRADLE_VERSION"
 fi
 
-if ! command -v node &> /dev/null; then
+if [ ! -x "$(command -v node)" ]; then
 	vfox_install_sdk nodejs "$VFOX_NODE_VERSION"
 fi
 
-if ! command -v go &> /dev/null; then
+if [ ! -x "$(command -v go)" ]; then
 	vfox_install_sdk golang "$VFOX_GO_VERSION"
 fi
 
@@ -137,15 +143,11 @@ if choice "Install LaTeX (latexmk and zathura)?"; then
     install_package_if_not_exists "zathura"
 fi
 
-# Create config properties file
 touch "$HOME/.zsh_config.properties"
-
-# Create symbolic links
-echo "Creating symbolic links..."
 
 # Ask user to select slim or full configuration
 select_config_type
 
 source "$SCRIPT_DIR/bootstrap/common-symlinks.sh"
 
-echo "=== WSL Bootstrap Complete ==="
+echo "=== Ubuntu Bootstrap Complete ==="
