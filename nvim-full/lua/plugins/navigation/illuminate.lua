@@ -14,7 +14,7 @@ return {
       -- filetypes to exclude
       filetypes_denylist = {
         'dirvish',
-        'fugitive',
+        'DiffviewFiles',
         'alpha',
         'NvimTree',
         'lazy',

@@ -22,6 +22,7 @@ return {
 
       -- Register keymaps with which-key
       require('which-key').add {
+        { '<leader>g', group = '[G]it' },
         { '<leader>gp', ':Gitsigns preview_hunk<CR>', mode = { 'n', 'v' }, desc = 'Gitsigns preview hunk' },
         { '<leader>gt', ':Gitsigns toggle_current_line_blame<CR>', mode = { 'n', 'v' }, desc = 'Gitsigns toggle blame' },
       }
