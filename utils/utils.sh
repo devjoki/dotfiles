@@ -153,12 +153,70 @@ install_package_if_not_exists() {
 		echo_err "PKG_NAME must be provided!"
 		return 1
 	fi
-	local PKG_OK=$(dpkg-query -W --showformat='${Status}\n' "$PKG_NAME" 2>/dev/null | grep "install ok installed" || echo "" )
-	if [ "" = "$PKG_OK" ]; then
-		echo "Installing '$PKG_NAME'"
-		sudo apt-get install "$PKG_NAME"
+
+	# Detect OS for package management
+	local OS_TYPE
+	local PKG_MANAGER
+	if [[ "$OSTYPE" == "darwin"* ]]; then
+		OS_TYPE="macos"
+		PKG_MANAGER="brew"
+	elif grep -qi microsoft /proc/version 2>/dev/null; then
+		OS_TYPE="wsl"
+		PKG_MANAGER="apt"
+	elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+		# Detect Linux distro
+		if [ -f /etc/arch-release ]; then
+			OS_TYPE="arch"
+			PKG_MANAGER="pacman"
+		elif [ -f /etc/fedora-release ]; then
+			OS_TYPE="fedora"
+			PKG_MANAGER="dnf"
+		elif [ -f /etc/debian_version ]; then
+			OS_TYPE="debian"
+			PKG_MANAGER="apt"
+		else
+			OS_TYPE="linux"
+			PKG_MANAGER="apt"  # default to apt
+		fi
 	else
-		echo_warn "$PKG_NAME is already installed!"
+		echo_err "Unsupported OS type: $OSTYPE"
+		return 1
+	fi
+
+	# Check if package is installed based on package manager
+	if [[ "$PKG_MANAGER" == "brew" ]]; then
+		# On macOS, use brew
+		if brew list "$PKG_NAME" &>/dev/null; then
+			echo_warn "$PKG_NAME is already installed!"
+		else
+			echo "Installing '$PKG_NAME' via Homebrew"
+			brew install "$PKG_NAME"
+		fi
+	elif [[ "$PKG_MANAGER" == "pacman" ]]; then
+		# On Arch Linux, use pacman
+		if pacman -Qi "$PKG_NAME" &>/dev/null; then
+			echo_warn "$PKG_NAME is already installed!"
+		else
+			echo "Installing '$PKG_NAME' via pacman"
+			sudo pacman -S --noconfirm "$PKG_NAME"
+		fi
+	elif [[ "$PKG_MANAGER" == "dnf" ]]; then
+		# On Fedora, use dnf
+		if rpm -q "$PKG_NAME" &>/dev/null; then
+			echo_warn "$PKG_NAME is already installed!"
+		else
+			echo "Installing '$PKG_NAME' via dnf"
+			sudo dnf install -y "$PKG_NAME"
+		fi
+	else
+		# On Debian/Ubuntu/WSL, use apt
+		local PKG_OK=$(dpkg-query -W --showformat='${Status}\n' "$PKG_NAME" 2>/dev/null | grep "install ok installed" || echo "" )
+		if [ "" = "$PKG_OK" ]; then
+			echo "Installing '$PKG_NAME' via apt"
+			sudo apt-get install -y "$PKG_NAME"
+		else
+			echo_warn "$PKG_NAME is already installed!"
+		fi
 	fi
 }
 
@@ -233,7 +291,7 @@ nvim_at() {
 	local CREATE_DIR_IF_NOT_EXISTS="$2"
 	if [[ -n "$CREATE_DIR_IF_NOT_EXISTS" && "$CREATE_DIR_IF_NOT_EXISTS" != "--create-dir" && "$CREATE_DIR_IF_NOT_EXISTS" != "-cd" ]]; then
 		echo_err "Invalid second argument: '$CREATE_DIR_IF_NOT_EXISTS'... It must be either empty or \"-cd\"/\"--create-dir\""
-		return 
+		return
 	elif [ -e "$TARGET_DIR" ] || ( [ -n "$CREATE_DIR_IF_NOT_EXISTS" ] || choice "Directory does not exist at $TARGET_DIR. Do you want to create it?"); then
 		create_dir_if_not_exists "$TARGET_DIR"
 
@@ -246,4 +304,71 @@ nvim_at() {
 			echo "Cannot cd to $CURRENT_DIR..."
 		fi
         fi
+}
+
+# Select slim or full configuration
+# Sets NVIM_CONFIG and ZSH_CONFIG environment variables
+select_config_type() {
+	echo ""
+	echo "Select configuration type:"
+	echo "  1) Slim (lightweight, minimal tools)"
+	echo "  2) Full (complete dev environment with LSP, SDKs)"
+	echo ""
+	read -p "Enter your choice [1-2]: " CONFIG_CHOICE
+
+	case $CONFIG_CHOICE in
+		1)
+			export NVIM_CONFIG="nvim-slim"
+			export ZSH_CONFIG="zsh-slim"
+			echo "Using slim configuration"
+			;;
+		2)
+			export NVIM_CONFIG="nvim-full"
+			export ZSH_CONFIG="zsh-full"
+			echo "Using full configuration"
+			;;
+		*)
+			echo_err "Invalid choice! Defaulting to full configuration."
+			export NVIM_CONFIG="nvim-full"
+			export ZSH_CONFIG="zsh-full"
+			;;
+	esac
+	echo ""
+}
+
+# SDK VERSIONS - Central version definitions
+export VFOX_JAVA_VERSION="25+36-tem"
+export VFOX_GRADLE_VERSION="8.7"
+export VFOX_MAVEN_VERSION="3.9.9"
+export VFOX_NODE_VERSION="25.2.1"
+export VFOX_GO_VERSION="1.23.5"
+
+# Helper function to install vfox SDK
+# Usage: vfox_install_sdk <plugin_name> <version>
+vfox_install_sdk() {
+	local plugin_name=$1
+	local version=$2
+
+	# Add plugin if not already added
+	if ! vfox info "$plugin_name" &>/dev/null; then
+		vfox add "$plugin_name" || {
+			echo_err "Failed to add plugin: $plugin_name"
+			if ! choice "Continue anyway?"; then
+				exit 1
+			fi
+			return 0  # User chose to continue, return success
+		}
+	fi
+
+	# Install version
+	vfox install "${plugin_name}@${version}" || {
+		echo_err "Failed to install ${plugin_name}@${version}"
+		if ! choice "Continue anyway?"; then
+			exit 1
+		fi
+		return 0  # User chose to continue, return success
+	}
+
+	# Set global version (only if install succeeded)
+	vfox use -g "${plugin_name}@${version}"
 }
