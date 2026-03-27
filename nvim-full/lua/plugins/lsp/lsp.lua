@@ -105,6 +105,14 @@ return {
           { '<leader>rn', vim.lsp.buf.rename, desc = 'Rename', buffer = bufnr },
           { '<leader>ca', vim.lsp.buf.code_action, desc = 'Code action', buffer = bufnr },
           {
+            '<leader>ch',
+            function()
+              vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = bufnr }, { bufnr = bufnr })
+            end,
+            desc = 'Toggle inlay [H]ints',
+            buffer = bufnr,
+          },
+          {
             '<leader>fd',
             function()
               vim.diagnostic.open_float { border = 'rounded' }

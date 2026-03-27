@@ -3,14 +3,7 @@
 
 echo "=== Windows WSL Bootstrap ==="
 
-# WSL-specific configurations
-echo "Configuring WSL-specific settings..."
-sudo bash "$SCRIPT_DIR/../utils/run_util_function.sh" "append_unique_lines_to_file" "/etc/environment" "export WAYLAND_DISPLAY=wayland-0" "export DISPLAY=:0"
 
-# Required for vimtex neovim plugin
-if [ -f "$SCRIPT_DIR/wsl_bash_sysinit" ]; then
-	create_symlink "$SCRIPT_DIR/wsl_bash_sysinit" "$HOME/.wsl_bash_sysinit" --override
-fi
 
 # Update and upgrade
 echo "Updating system packages..."
@@ -27,8 +20,9 @@ install_package_if_not_exists "git"
 install_package_if_not_exists "curl"
 install_package_if_not_exists "wget"
 install_package_if_not_exists "unzip"
-install_package_if_not_exists "xclip"
 install_package_if_not_exists "libatomic1"
+
+install_package_if_not_exists "wl-clipboard"
 
 # Install Zsh
 install_package_if_not_exists "zsh"
@@ -66,7 +60,12 @@ fi
 if ! command -v lazygit &> /dev/null; then
 	echo "Installing lazygit..."
 	LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
-	curl -Lo /tmp/lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz"
+	LAZYGIT_ARCH=$(uname -m)
+	case "$LAZYGIT_ARCH" in
+		x86_64) LAZYGIT_ARCH="x86_64" ;;
+		aarch64) LAZYGIT_ARCH="arm64" ;;
+	esac
+	curl -Lo /tmp/lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_${LAZYGIT_ARCH}.tar.gz"
 	tar xf /tmp/lazygit.tar.gz -C /tmp lazygit
 	sudo install /tmp/lazygit /usr/local/bin
 	rm /tmp/lazygit.tar.gz /tmp/lazygit
@@ -95,7 +94,34 @@ if ! command -v fzf &> /dev/null; then
 	if [ ! -d ~/.fzf ]; then
 		git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 	fi
-	~/.fzf/install --bin
+	~/.fzf/install --key-bindings --completion --no-update-rc --no-bash --no-fish
+fi
+
+# Install fd (faster alternative to find, used by Telescope)
+if ! command -v fd &> /dev/null; then
+	echo "Installing fd..."
+	FD_VERSION=$(curl -s https://api.github.com/repos/sharkdp/fd/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
+	curl -Lo /tmp/fd.deb "https://github.com/sharkdp/fd/releases/download/${FD_VERSION}/fd_${FD_VERSION#v}_amd64.deb"
+	sudo dpkg -i /tmp/fd.deb
+	rm /tmp/fd.deb
+fi
+
+# Install bat (cat with syntax highlighting)
+if ! command -v bat &> /dev/null; then
+	echo "Installing bat..."
+	BAT_VERSION=$(curl -s https://api.github.com/repos/sharkdp/bat/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
+	curl -Lo /tmp/bat.deb "https://github.com/sharkdp/bat/releases/download/${BAT_VERSION}/bat_${BAT_VERSION#v}_amd64.deb"
+	sudo dpkg -i /tmp/bat.deb
+	rm /tmp/bat.deb
+fi
+
+# Install ripgrep (faster grep, used by Telescope)
+if ! command -v rg &> /dev/null; then
+	echo "Installing ripgrep..."
+	RG_VERSION=$(curl -s https://api.github.com/repos/BurntSushi/ripgrep/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
+	curl -Lo /tmp/ripgrep.deb "https://github.com/BurntSushi/ripgrep/releases/download/${RG_VERSION}/ripgrep_${RG_VERSION#v}_amd64.deb"
+	sudo dpkg -i /tmp/ripgrep.deb
+	rm /tmp/ripgrep.deb
 fi
 
 # Install Rust
@@ -103,7 +129,6 @@ if ! command -v rustup &> /dev/null; then
 	echo "Installing Rust..."
 	curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 	source "$HOME/.cargo/env"
-	rustup install stable
 fi
 
 # Activate vfox

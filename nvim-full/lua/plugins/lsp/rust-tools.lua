@@ -1,7 +1,6 @@
 return {
   'mrcjkb/rustaceanvim',
   version = '^5',
-  lazy = false,
   ft = { 'rust' },
   dependencies = {
     'jay-babu/mason-nvim-dap.nvim',
@@ -42,6 +41,14 @@ return {
                 require('telescope.builtin').lsp_definitions()
               end,
               desc = 'Go to definition',
+              buffer = bufnr,
+            },
+            {
+              '<leader>ch',
+              function()
+                vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = bufnr }, { bufnr = bufnr })
+              end,
+              desc = 'Toggle inlay [H]ints',
               buffer = bufnr,
             },
           }
@@ -129,6 +136,12 @@ return {
             },
             procMacro = {
               enable = true,
+            },
+            navigation = {
+              importGranularity = 'module',
+            },
+            definition = {
+              followImports = 'always',
             },
             inlayHints = {
               lifetimeElisionHints = {

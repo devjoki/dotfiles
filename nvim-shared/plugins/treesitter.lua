@@ -7,7 +7,6 @@ return {
     build = ':TSUpdate',
     dependencies = {
       'nvim-treesitter/nvim-treesitter-textobjects',
-      'nvim-treesitter/nvim-treesitter-context',
     },
     opts = {
       ensure_installed = {
@@ -78,15 +77,13 @@ return {
         },
       },
     },
-    config = function(_, opts)
-      require('nvim-treesitter.configs').setup(opts)
-
-      -- Configure treesitter-context (show current function/class at top)
-      require('treesitter-context').setup {
-        enable = true,
-        max_lines = 3,
-        trim_scope = 'outer',
-      }
-    end,
+  },
+  {
+    'nvim-treesitter/nvim-treesitter-context',
+    opts = {
+      enable = true,
+      max_lines = 3,
+      trim_scope = 'outer',
+    },
   },
 }

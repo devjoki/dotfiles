@@ -339,7 +339,7 @@ select_config_type() {
 # SDK VERSIONS - Central version definitions
 export VFOX_JAVA_VERSION="25+36-tem"
 export VFOX_GRADLE_VERSION="8.7"
-export VFOX_MAVEN_VERSION="3.9.9"
+export VFOX_MAVEN_VERSION="3.9.14"
 export VFOX_NODE_VERSION="25.2.1"
 export VFOX_GO_VERSION="1.23.5"
 
