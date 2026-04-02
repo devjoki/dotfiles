@@ -1,0 +1,16 @@
+github-copilot/*
+jgit/*
+work/*
+zsh-shared/work/*
+op/
+
+# Zsh completion cache (auto-generated)
+zsh/.zcompdump*
+zsh-full/.zcompdump*
+
+# Zsh extensions (installed separately, not tracked)
+zsh-shared/zsh_extensions/fzf-tab/
+zsh-shared/zsh_extensions/zsh-syntax-highlighting/
+
+# Theme preference (local, not tracked)
+.theme/
